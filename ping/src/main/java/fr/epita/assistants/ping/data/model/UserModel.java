@@ -40,13 +40,19 @@ public class UserModel {
     public UserModel() {}
 
     public UserModel(String login, String password, String displayName, String avatar, Boolean isAdmin) {
-        
         this.login = login;
         this.password = password;
         this.displayName = displayName;
         this.avatar = avatar;
         this.isAdmin = isAdmin;
     }
+
+    public UUID getId() { return id; }
+    public String getLogin() { return login; }
+    public String getPassword() { return password; }
+    public String getDisplayName() { return displayName; }
+    public String getAvatar() { return avatar; }
+    public Boolean getIsAdmin() { return isAdmin; }
 }
 
 
