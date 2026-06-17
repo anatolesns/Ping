@@ -1,10 +1,10 @@
 package fr.epita.assistants.ping.presentation.rest;
 
 import fr.epita.assistants.ping.data.model.UserModel;
-import fr.epita.assistants.request.LoginRequest;
-import fr.epita.assistants.request.NewUserRequest;
-import fr.epita.assistants.response.UserResponse;
-import fr.epita.assistants.response.UserResponseList;
+import fr.epita.assistants.ping.request.LoginRequest;
+import fr.epita.assistants.ping.request.NewUserRequest;
+import fr.epita.assistants.ping.response.UserResponse;
+import fr.epita.assistants.ping.response.UserResponseList;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;

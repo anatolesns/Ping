@@ -1,14 +1,18 @@
-package fr.epita.assistants.request;
+package fr.epita.assistants.ping.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class NewUserRequest {
+public class UserResponseList {
+    public UUID id;
     public String login;
-    public String password;
+    public String displayName;
     public Boolean isAdmin;
+    public String avatar;
 }
