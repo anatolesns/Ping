@@ -1,14 +1,15 @@
 package fr.epita.assistants.ping.presentation.rest;
 
 import fr.epita.assistants.ping.data.model.UserModel;
-import fr.epita.assistants.request.LoginRequest;
-import fr.epita.assistants.request.NewUserRequest;
-import fr.epita.assistants.response.UserResponse;
-import fr.epita.assistants.response.UserResponseList;
+import fr.epita.assistants.ping.data.repository.UserRepository;
+import fr.epita.assistants.ping.request.LoginRequest;
+import fr.epita.assistants.ping.request.NewUserRequest;
+import fr.epita.assistants.ping.request.UpdateUserRequest;
+import fr.epita.assistants.ping.response.UserResponse;
+import fr.epita.assistants.ping.response.UserResponseList;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -31,7 +32,7 @@ import java.util.UUID;
 public class AuthResource {
     
     @Inject
-    EntityManager entityManager;
+    UserRepository userRepository;
 
     @Inject
     JsonWebToken jwt;
@@ -41,9 +42,7 @@ public class AuthResource {
     @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllUsers() {
-        List<UserModel> all = entityManager
-                .createQuery("SELECT u FROM UserModel u", UserModel.class)
-                .getResultList();
+        List<UserModel> all = userRepository.findAll();
 
         List<UserResponseList> res = new ArrayList<>();
 
@@ -76,11 +75,7 @@ public class AuthResource {
                     .build();
         }
 
-        long nb = entityManager.createQuery(
-                "SELECT COUNT(u) FROM UserModel u WHERE u.login = :login", Long.class)
-                .setParameter("login", request.login)
-                .getSingleResult();
-        if (nb > 0) {
+        if (userRepository.loginExists(request.login)) {
             return Response.status(Response.Status.CONFLICT)
                     .entity("{\"message\": \"The login is already taken\"}")
                     .build();
@@ -126,7 +121,7 @@ public class AuthResource {
         }
 
         UserModel user = new UserModel(request.login, password, Name, null, admin);
-        entityManager.persist(user);
+        userRepository.save(user);
 
         return Response.ok(new UserResponse(user)).build();
     }
@@ -142,10 +137,7 @@ public class AuthResource {
         }
 
         try {
-            UserModel user = entityManager.createQuery(
-                    "SELECT u FROM UserModel u WHERE u.login = :login", UserModel.class)
-                    .setParameter("login", request.login)
-                    .getSingleResult();
+            UserModel user = userRepository.findByLogin(request.login);
 
             String password = HashUtils.decrypt(user.getPassword());
             if (!password.equals(request.password)) {
@@ -187,7 +179,7 @@ public class AuthResource {
         String subject = jwt.getSubject();
         try {
             UUID userId = UUID.fromString(subject);
-            UserModel user = entityManager.find(UserModel.class, userId);
+            UserModel user = userRepository.findById(userId);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND)
                         .entity("{\"message\": \"The user could not be found\"}")
@@ -235,5 +227,87 @@ public class AuthResource {
         }
         return false;
     }
+
+    @GET
+    @Path("/{id}")
+    @RolesAllowed({"user", "admin"})
+    public Response getUser(@PathParam("id") UUID id) {
+        UserModel user = userRepository.findById(id);
+        if (user == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"message\": \"User not found\"}")
+                    .build();
+        }
+
+        String call = jwt.getSubject();
+        boolean isAdmin = jwt.getGroups().contains("admin");
+        if (!isAdmin && !id.toString().equals(call)) {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity("{\"message\": \"The user is not allowed to access this user\"}")
+                    .build();
+        }
+
+        return Response.ok(new UserResponse(user)).build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    @Transactional
+    @RolesAllowed({"user", "admin"})
+    public Response updateUser(@PathParam("id") UUID id, UpdateUserRequest request) {
+        UserModel user = userRepository.findById(id);
+        if (user == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"message\": \"The user could not be found\"}")
+                    .build();
+        }
+
+        String call = jwt.getSubject();
+        boolean isAdmin = jwt.getGroups().contains("admin");
+        if (!isAdmin && !id.toString().equals(call)) {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity("{\"message\": \"The user is not allowed\"}")
+                    .build();
+        }
+
+        if (request.displayName != null && request.displayName.isBlank() == false) {
+                    user.setDisplayName(request.displayName);
+                }
+
+        if (request.password != null && request.password.isBlank() == false) {
+            try {
+                user.setPassword(HashUtils.encrypt(request.password));
+            } catch (Exception e) {
+                return Response.status(401)
+                        .entity("{\"message\": \"Error password\"}")
+                        .build();
+            }
+        }
+        
+        if (request.avatar != null) {
+            user.setAvatar(request.avatar);
+        }
+
+        return Response.ok(new UserResponse(user)).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Transactional
+    @RolesAllowed("admin")
+    public Response deleteUser(@PathParam("id") UUID id) {
+        UserModel user = userRepository.findById(id);
+        if (user == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"message\": \"The user could not be found\"}")
+                    .build();
+        }
+
+        userRepository.delete(user);
+
+        return Response.noContent().build();
+    }
+
+    
 
 }

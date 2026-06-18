@@ -1,4 +1,4 @@
-package fr.epita.assistants.response;
+package fr.epita.assistants.ping.response;
 
 import fr.epita.assistants.ping.data.model.UserModel;
 import lombok.Data;
