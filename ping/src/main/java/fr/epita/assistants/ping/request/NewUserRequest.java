@@ -1,4 +1,4 @@
-package fr.epita.assistants.request;
+package fr.epita.assistants.ping.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
