@@ -162,7 +162,7 @@ public class AuthResource {
             return Response.ok("{\"token\": \"" + token + "\"}").build();
 
         } catch (NoResultException e) {
-            return Response.status(Response.Status.NOT_FOUND)
+            return Response.status(Response.Status.UNAUTHORIZED)
                     .entity("{\"message\": \"User not found\"}")
                     .build();
         } catch (Exception e) {
@@ -207,7 +207,7 @@ public class AuthResource {
     }
 
     private boolean is_valid(String login) {
-        if (login == null) {
+        if (login == null || login.isBlank()) {
             return false;
         }
         int d = 0;
@@ -215,10 +215,16 @@ public class AuthResource {
         for (int i = 0; i < login.length(); i++) {
             if (login.charAt(i) == '.') 
             {
+                if (i==0 || i == login.length()-1){
+                    return false;
+                }
                 d++;
             }
             if (login.charAt(i) == '_') 
             {
+                if (i==0 || i == login.length()-1){
+                    return false;
+                }
                 u++;
             }
         }
