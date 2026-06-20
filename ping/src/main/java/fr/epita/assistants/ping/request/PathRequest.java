@@ -1,12 +1,12 @@
 package fr.epita.assistants.ping.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class PathRequest {
     public String relativePath;
 }

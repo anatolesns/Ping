@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import fr.epita.assistants.ping.utils.Logger;
 
 @Path("/api/user")
 @Produces(MediaType.APPLICATION_JSON)
@@ -36,6 +37,9 @@ public class AuthResource {
 
     @Inject
     JsonWebToken jwt;
+
+    @Inject
+    Logger logger;
 
     @GET
     @Path("/all")
@@ -55,7 +59,7 @@ public class AuthResource {
             dto.avatar = user.getAvatar();
             res.add(dto);
         }
-
+        logger.Log("GET /api/user/all, Id = " + jwt.getSubject());
         return Response.ok(res).build();
     }
 
@@ -65,17 +69,20 @@ public class AuthResource {
     public Response createUser(NewUserRequest request) {
 
         if (request.login == null || request.password == null) {
+            logger.ErrorLog("POST /api/user, Id = " + jwt.getSubject() + " , login or password null");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"The login or the password is invalid\"}")
                     .build();
         }
         if (is_valid(request.login) == false) {
+            logger.ErrorLog("POST /api/user, Id = " + jwt.getSubject() + " , invalid login format");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"Invalid login format\"}")
                     .build();
         }
 
         if (userRepository.loginExists(request.login)) {
+            logger.ErrorLog("POST /api/user, Id = " + jwt.getSubject() + " , login already taken");
             return Response.status(Response.Status.CONFLICT)
                     .entity("{\"message\": \"The login is already taken\"}")
                     .build();
@@ -122,7 +129,7 @@ public class AuthResource {
 
         UserModel user = new UserModel(request.login, password, Name, null, admin);
         userRepository.save(user);
-
+        logger.Log("POST /api/user , Id = " + jwt.getSubject() + " , login = " + request.login + " , isAdmin = " + admin);
         return Response.ok(new UserResponse(user)).build();
     }
 
@@ -131,16 +138,18 @@ public class AuthResource {
     @Transactional
     public Response login(LoginRequest request) {
         if (is_valid(request.login) == false) {
+            logger.ErrorLog("/api/user/login => invalid login format");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"Invalid login format\"}")
                     .build();
         }
-
+        
         try {
             UserModel user = userRepository.findByLogin(request.login);
 
             String password = HashUtils.decrypt(user.getPassword());
             if (!password.equals(request.password)) {
+                logger.ErrorLog("/api/user/login : wrong password");
                 return Response.status(Response.Status.UNAUTHORIZED)
                         .entity("{\"message\": \"Wrong password\"}")
                         .build();
@@ -159,13 +168,16 @@ public class AuthResource {
                 .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS).getEpochSecond())
                 .sign();
 
+            logger.Log("POST /api/user/login : login = " + request.login + " , userId = " + user.getId());
             return Response.ok("{\"token\": \"" + token + "\"}").build();
 
         } catch (NoResultException e) {
-            return Response.status(Response.Status.NOT_FOUND)
+            logger.ErrorLog("/api/user/login : User not found");
+            return Response.status(Response.Status.UNAUTHORIZED)
                     .entity("{\"message\": \"User not found\"}")
                     .build();
         } catch (Exception e) {
+            logger.ErrorLog("/api/user/login : Authentication failed");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"message\": \"Authentication failed\"}")
                     .build();
@@ -198,8 +210,10 @@ public class AuthResource {
                     .issuedAt(Instant.now().getEpochSecond())
                     .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS).getEpochSecond())
                     .sign();
+            logger.Log("GET /api/user/refresh , Id = " + subject);
             return Response.ok("{\"token\": \"" + token + "\"}").build();
         } catch (Exception e) {
+            logger.ErrorLog("GET /api/user/refresh , Id = " + subject + ", error = " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"message\": \"error\"}")
                     .build();
@@ -207,7 +221,7 @@ public class AuthResource {
     }
 
     private boolean is_valid(String login) {
-        if (login == null) {
+        if (login == null || login.isBlank()) {
             return false;
         }
         int d = 0;
@@ -215,10 +229,16 @@ public class AuthResource {
         for (int i = 0; i < login.length(); i++) {
             if (login.charAt(i) == '.') 
             {
+                if (i==0 || i == login.length()-1){
+                    return false;
+                }
                 d++;
             }
             if (login.charAt(i) == '_') 
             {
+                if (i==0 || i == login.length()-1){
+                    return false;
+                }
                 u++;
             }
         }
@@ -242,11 +262,13 @@ public class AuthResource {
         String call = jwt.getSubject();
         boolean isAdmin = jwt.getGroups().contains("admin");
         if (!isAdmin && !id.toString().equals(call)) {
+            logger.ErrorLog("GET /api/user/" + id + " , Id = " + call + " ,forbidden");
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"message\": \"The user is not allowed to access this user\"}")
                     .build();
         }
 
+        logger.Log("GET /api/user/" + id + " , Id = " + call);
         return Response.ok(new UserResponse(user)).build();
     }
 
@@ -265,6 +287,7 @@ public class AuthResource {
         String call = jwt.getSubject();
         boolean isAdmin = jwt.getGroups().contains("admin");
         if (!isAdmin && !id.toString().equals(call)) {
+            logger.ErrorLog("PUT /api/user/" + id + " , Id = " + call + ", forbidden");
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"message\": \"The user is not allowed\"}")
                     .build();
@@ -288,6 +311,7 @@ public class AuthResource {
             user.setAvatar(request.avatar);
         }
 
+        logger.Log("PUT /api/user/" + id + " , Id = " + call + " , displayName = " + request.displayName);
         return Response.ok(new UserResponse(user)).build();
     }
 
@@ -305,6 +329,7 @@ public class AuthResource {
 
         userRepository.delete(user);
 
+        logger.Log("DELETE /api/user/" + id + ", Id = " + jwt.getSubject());
         return Response.noContent().build();
     }
 
