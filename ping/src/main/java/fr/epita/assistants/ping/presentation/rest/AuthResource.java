@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import fr.epita.assistants.ping.utils.Logger;
 
 @Path("/api/user")
 @Produces(MediaType.APPLICATION_JSON)
@@ -36,6 +37,9 @@ public class AuthResource {
 
     @Inject
     JsonWebToken jwt;
+
+    @Inject
+    Logger logger;
 
     @GET
     @Path("/all")
@@ -55,7 +59,7 @@ public class AuthResource {
             dto.avatar = user.getAvatar();
             res.add(dto);
         }
-
+        logger.Log("/api/user/login : id = " + jwt.getTokenID());
         return Response.ok(res).build();
     }
 
@@ -122,7 +126,7 @@ public class AuthResource {
 
         UserModel user = new UserModel(request.login, password, Name, null, admin);
         userRepository.save(user);
-
+        logger.Log("/api/user/login : id = " + jwt.getTokenID());
         return Response.ok(new UserResponse(user)).build();
     }
 
@@ -131,16 +135,18 @@ public class AuthResource {
     @Transactional
     public Response login(LoginRequest request) {
         if (is_valid(request.login) == false) {
+            logger.ErrorLog("/api/user/login => invalid login format");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"Invalid login format\"}")
                     .build();
         }
-
+        
         try {
             UserModel user = userRepository.findByLogin(request.login);
 
             String password = HashUtils.decrypt(user.getPassword());
             if (!password.equals(request.password)) {
+                logger.ErrorLog("/api/user/login : wrong password");
                 return Response.status(Response.Status.UNAUTHORIZED)
                         .entity("{\"message\": \"Wrong password\"}")
                         .build();
@@ -159,13 +165,16 @@ public class AuthResource {
                 .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS).getEpochSecond())
                 .sign();
 
+            logger.Log("/api/user/login , token = " + token);
             return Response.ok("{\"token\": \"" + token + "\"}").build();
 
         } catch (NoResultException e) {
-            return Response.status(Response.Status.NOT_FOUND)
+            logger.ErrorLog("/api/user/login : User not found");
+            return Response.status(Response.Status.UNAUTHORIZED)
                     .entity("{\"message\": \"User not found\"}")
                     .build();
         } catch (Exception e) {
+            logger.ErrorLog("/api/user/login : Authentication failed");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"message\": \"Authentication failed\"}")
                     .build();
@@ -207,7 +216,7 @@ public class AuthResource {
     }
 
     private boolean is_valid(String login) {
-        if (login == null) {
+        if (login == null || login.isBlank()) {
             return false;
         }
         int d = 0;
@@ -215,10 +224,16 @@ public class AuthResource {
         for (int i = 0; i < login.length(); i++) {
             if (login.charAt(i) == '.') 
             {
+                if (i==0 || i == login.length()-1){
+                    return false;
+                }
                 d++;
             }
             if (login.charAt(i) == '_') 
             {
+                if (i==0 || i == login.length()-1){
+                    return false;
+                }
                 u++;
             }
         }
