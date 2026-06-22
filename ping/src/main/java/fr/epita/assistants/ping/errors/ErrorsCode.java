@@ -11,6 +11,10 @@ import static jakarta.ws.rs.core.Response.Status.*;
 @Getter
 public enum ErrorsCode implements IHttpError {
     EXAMPLE_ERROR(BAD_REQUEST, "Example error: %s"),
+    INVALID_PATH(BAD_REQUEST, "The relative path is invalid: %s"),
+    PATH_TRAVERSAL(FORBIDDEN, "Path traversal detected: %s"),
+    NOT_FOUND_ERROR(NOT_FOUND, "Could not be found: %s"),
+    ALREADY_EXISTS(CONFLICT, "Already exists: %s"),
     ;
 
     private final HttpError error;
