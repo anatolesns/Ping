@@ -37,7 +37,7 @@ public class FileResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @RolesAllowed({"user", "admin"})
     public Response getFile(@QueryParam("path") String path) {
-        if (path == null) {
+        if (path == null || path.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"The relative path is invalid\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -137,7 +137,7 @@ public class FileResource {
                     .build();
         }
 
-        if (request.relativePath == null) {
+        if (request.relativePath == null || request.relativePath.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"The relative path is invalid\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -176,7 +176,8 @@ public class FileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({"user", "admin"})
     public Response moveFile(MoveRequest request) {
-        if (request == null) {
+        if (request == null || request.src == null || request.src.isEmpty()
+                || request.dst == null || request.dst.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"The source or destination path is invalid\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -224,7 +225,7 @@ public class FileResource {
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @RolesAllowed({"user", "admin"})
     public Response uploadFile(@QueryParam("path") String path, byte[] content) {
-        if (path == null) {
+        if (path == null || path.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"The relative path is invalid\"}")
                     .type(MediaType.APPLICATION_JSON)
