@@ -1,6 +1,7 @@
 package fr.epita.assistants.ping.presentation.rest;
 import fr.epita.assistants.ping.request.MoveRequest;
 import fr.epita.assistants.ping.request.PathRequest;
+import fr.epita.assistants.ping.service.FileService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -13,7 +14,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,13 +28,8 @@ public class FileResource {
     @Inject
     Logger logger;
 
-    @ConfigProperty(name = "filesystem.default.path")
-    String default_value;
-
-    private java.nio.file.Path resolvePath(String path) {
-        java.nio.file.Path root = java.nio.file.Path.of(default_value).toAbsolutePath().normalize();
-        return root.resolve(path).normalize();
-    }
+    @Inject
+    FileService fileService;
 
     @GET
     @Path("/")
@@ -48,16 +43,14 @@ public class FileResource {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
-        java.nio.file.Path root = java.nio.file.Path.of(default_value).toAbsolutePath().normalize();
-        java.nio.file.Path temp = root.resolve(path).normalize();
-        if (!temp.startsWith(root)) {
+        java.nio.file.Path res = fileService.resolve(path);
+        if (res == null) {
             logger.ErrorLog("GET /api/files, Id = " + jwt.getSubject() + " , not allowed");
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"message\": \"The user is not allowed to access the project or a path traversal attack was detected\"}")
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
-        java.nio.file.Path res = resolvePath(path);
 
         if (!Files.exists(res) || Files.isDirectory(res)) {
             logger.ErrorLog("GET /api/files, Id = " + jwt.getSubject() + " , Files not found");
@@ -100,16 +93,14 @@ public class FileResource {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
-        java.nio.file.Path root = java.nio.file.Path.of(default_value).toAbsolutePath().normalize();
-        java.nio.file.Path temp = root.resolve(request.relativePath).normalize();
-        if (!temp.startsWith(root)) {
+        java.nio.file.Path res = fileService.resolve(request.relativePath);
+        if (res == null) {
             logger.ErrorLog("POST /api/files, Id = " + jwt.getSubject() + " , not allowed");
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"message\": \"The user is not allowed to access the project or a path traversal attack was detected\"}")
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
-        java.nio.file.Path res = resolvePath(request.relativePath);
 
         if (Files.exists(res)) {
             logger.ErrorLog("POST /api/files, Id = " + jwt.getSubject() + " , already exists");
@@ -161,16 +152,14 @@ public class FileResource {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
-        java.nio.file.Path aux = java.nio.file.Path.of(default_value).toAbsolutePath().normalize();
-        java.nio.file.Path temp = aux.resolve(request.relativePath).normalize();
-        if (!temp.startsWith(aux)) {
+        java.nio.file.Path res = fileService.resolve(request.relativePath);
+        if (res == null) {
             logger.ErrorLog("DELETE /api/files, Id = " + jwt.getSubject() + " , path = " + request.relativePath + " , not allowed");
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"message\": \"Path attack detected\"}")
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
-        java.nio.file.Path res = resolvePath(request.relativePath);
 
         if (!Files.exists(res) || Files.isDirectory(res)) {
             logger.ErrorLog("DELETE /api/files, Id = " + jwt.getSubject() + " , path = " + request.relativePath + " , file not found");
@@ -207,11 +196,10 @@ public class FileResource {
                     .build();
         }
 
-        java.nio.file.Path root = java.nio.file.Path.of(default_value).toAbsolutePath().normalize();
-        java.nio.file.Path source = root.resolve(request.src).normalize();
-        java.nio.file.Path dest = root.resolve(request.dst).normalize();
+        java.nio.file.Path source = fileService.resolve(request.src);
+        java.nio.file.Path dest = fileService.resolve(request.dst);
 
-        if (!source.startsWith(root) || !dest.startsWith(root)) {
+        if (source == null || dest == null) {
             logger.ErrorLog("PUT /api/files/move, Id = " + jwt.getSubject() + " , src = " + request.src + " , dst = " + request.dst + " , not allowed");
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"message\": \"Path detected\"}")
@@ -261,10 +249,8 @@ public class FileResource {
                     .build();
         }
 
-        java.nio.file.Path root = java.nio.file.Path.of(default_value).toAbsolutePath().normalize();
-        java.nio.file.Path res = root.resolve(path).normalize();
-
-        if (!res.startsWith(root)) {
+        java.nio.file.Path res = fileService.resolve(path);
+        if (res == null) {
             logger.ErrorLog("POST /api/files/upload, Id = " + jwt.getSubject() + " , path = " + path + " , not allowed");
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"message\": \"Path traversal attack detected\"}")
