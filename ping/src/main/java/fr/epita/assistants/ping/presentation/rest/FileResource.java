@@ -17,12 +17,16 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import java.io.IOException;
 import java.nio.file.Files;
+import fr.epita.assistants.ping.utils.Logger;
 
 @Path("/api/files")
 public class FileResource {
 
     @Inject
     JsonWebToken jwt;
+
+    @Inject
+    Logger logger;
 
     @ConfigProperty(name = "filesystem.default.path")
     String default_value;
@@ -37,7 +41,8 @@ public class FileResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @RolesAllowed({"user", "admin"})
     public Response getFile(@QueryParam("path") String path) {
-        if (path == null) {
+        if (path == null || path.isEmpty()) {
+            logger.ErrorLog("GET /api/files, Id = " + jwt.getSubject() + " , path null");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"The relative path is invalid\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -46,6 +51,7 @@ public class FileResource {
         java.nio.file.Path root = java.nio.file.Path.of(default_value).toAbsolutePath().normalize();
         java.nio.file.Path temp = root.resolve(path).normalize();
         if (!temp.startsWith(root)) {
+            logger.ErrorLog("GET /api/files, Id = " + jwt.getSubject() + " , not allowed");
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"message\": \"The user is not allowed to access the project or a path traversal attack was detected\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -54,6 +60,7 @@ public class FileResource {
         java.nio.file.Path res = resolvePath(path);
 
         if (!Files.exists(res) || Files.isDirectory(res)) {
+            logger.ErrorLog("GET /api/files, Id = " + jwt.getSubject() + " , Files not found");
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("{\"message\": \"File not found\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -62,8 +69,10 @@ public class FileResource {
 
         try {
             byte[] content = Files.readAllBytes(res);
+            logger.Log("GET /api/files, Id = " + jwt.getSubject() + " , path = " + path);
             return Response.ok(content, MediaType.APPLICATION_OCTET_STREAM).build();
         } catch (IOException e) {
+            logger.ErrorLog("GET /api/files, Id = " + jwt.getSubject() + " , error get");
             return Response.status(500)
                     .entity("{\"message\": \"Error file\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -77,6 +86,7 @@ public class FileResource {
     @RolesAllowed({"user", "admin"})
     public Response createFile(PathRequest request) {
         if (request == null) {
+            logger.ErrorLog("GET /api/files, Id = " + jwt.getSubject() + " , invalid path");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"The relative path is invalid\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -84,6 +94,7 @@ public class FileResource {
         }
 
         if (request.relativePath == null) {
+            logger.ErrorLog("POST /api/files, Id = " + jwt.getSubject() + " , error path");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"The relative path is invalid\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -92,6 +103,7 @@ public class FileResource {
         java.nio.file.Path root = java.nio.file.Path.of(default_value).toAbsolutePath().normalize();
         java.nio.file.Path temp = root.resolve(request.relativePath).normalize();
         if (!temp.startsWith(root)) {
+            logger.ErrorLog("POST /api/files, Id = " + jwt.getSubject() + " , not allowed");
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"message\": \"The user is not allowed to access the project or a path traversal attack was detected\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -100,6 +112,7 @@ public class FileResource {
         java.nio.file.Path res = resolvePath(request.relativePath);
 
         if (Files.exists(res)) {
+            logger.ErrorLog("POST /api/files, Id = " + jwt.getSubject() + " , already exists");
             return Response.status(Response.Status.CONFLICT)
                     .entity("{\"message\": \"File already exists\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -108,6 +121,7 @@ public class FileResource {
 
         java.nio.file.Path parent = res.getParent();
         if (!Files.exists(parent)) {
+            logger.ErrorLog("POST /api/files, Id = " + jwt.getSubject() + " , not found");
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("{\"message\": \"The project or the file could not be found\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -116,8 +130,10 @@ public class FileResource {
 
         try {
             Files.createFile(res);
+            logger.Log("POST /api/files, Id = " + jwt.getSubject() + " , path = " + request.relativePath);
             return Response.status(Response.Status.CREATED).build();
         } catch (IOException e) {
+            logger.ErrorLog("POST /api/files, Id = " + jwt.getSubject() + " , error post");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"message\": \"Error file\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -131,13 +147,15 @@ public class FileResource {
     @RolesAllowed({"user", "admin"})
     public Response deleteFile(PathRequest request) {
         if (request == null) {
+            logger.ErrorLog("DELETE /api/files, Id = " + jwt.getSubject() + " , request null");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"The relative path is invalid\"}")
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
 
-        if (request.relativePath == null) {
+        if (request.relativePath == null || request.relativePath.isEmpty()) {
+            logger.ErrorLog("DELETE /api/files, Id = " + jwt.getSubject() + " , path null or empty");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"The relative path is invalid\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -146,6 +164,7 @@ public class FileResource {
         java.nio.file.Path aux = java.nio.file.Path.of(default_value).toAbsolutePath().normalize();
         java.nio.file.Path temp = aux.resolve(request.relativePath).normalize();
         if (!temp.startsWith(aux)) {
+            logger.ErrorLog("DELETE /api/files, Id = " + jwt.getSubject() + " , path = " + request.relativePath + " , not allowed");
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"message\": \"Path attack detected\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -154,6 +173,7 @@ public class FileResource {
         java.nio.file.Path res = resolvePath(request.relativePath);
 
         if (!Files.exists(res) || Files.isDirectory(res)) {
+            logger.ErrorLog("DELETE /api/files, Id = " + jwt.getSubject() + " , path = " + request.relativePath + " , file not found");
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("{\"message\": \"File not found\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -162,8 +182,10 @@ public class FileResource {
 
         try {
             Files.delete(res);
+            logger.Log("DELETE /api/files, Id = " + jwt.getSubject() + " , path = " + request.relativePath);
             return Response.noContent().build();
         } catch (IOException e) {
+            logger.ErrorLog("DELETE /api/files, Id = " + jwt.getSubject() + " , path = " + request.relativePath + " , error delete");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"message\": \"Error file\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -176,7 +198,9 @@ public class FileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({"user", "admin"})
     public Response moveFile(MoveRequest request) {
-        if (request == null) {
+        if (request == null || request.src == null || request.src.isEmpty()
+                || request.dst == null || request.dst.isEmpty()) {
+            logger.ErrorLog("PUT /api/files/move, Id = " + jwt.getSubject() + " , invalid req");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"The source or destination path is invalid\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -188,6 +212,7 @@ public class FileResource {
         java.nio.file.Path dest = root.resolve(request.dst).normalize();
 
         if (!source.startsWith(root) || !dest.startsWith(root)) {
+            logger.ErrorLog("PUT /api/files/move, Id = " + jwt.getSubject() + " , src = " + request.src + " , dst = " + request.dst + " , not allowed");
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"message\": \"Path detected\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -195,6 +220,7 @@ public class FileResource {
         }
 
         if (!Files.exists(source)) {
+            logger.ErrorLog("PUT /api/files/move, Id = " + jwt.getSubject() + " , src = " + request.src + " , not found");
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("{\"message\": \"The project could not be found\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -202,6 +228,7 @@ public class FileResource {
         }
 
         if (Files.exists(dest)) {
+            logger.ErrorLog("PUT /api/files/move, Id = " + jwt.getSubject() + " , dst = " + request.dst + " , already exists");
             return Response.status(Response.Status.CONFLICT)
                     .entity("{\"message\": \"The destination file already exists\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -210,8 +237,10 @@ public class FileResource {
 
         try {
             Files.move(source, dest);
+            logger.Log("PUT /api/files/move, Id = " + jwt.getSubject() + " , src = " + request.src + " , dst = " + request.dst);
             return Response.noContent().build();
         } catch (IOException e) {
+            logger.ErrorLog("PUT /api/files/move, Id = " + jwt.getSubject() + " , src = " + request.src + " , dst = " + request.dst + " , error move");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"message\": \"Error moving file\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -224,7 +253,8 @@ public class FileResource {
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @RolesAllowed({"user", "admin"})
     public Response uploadFile(@QueryParam("path") String path, byte[] content) {
-        if (path == null) {
+        if (path == null || path.isEmpty()) {
+            logger.ErrorLog("POST /api/files/upload, Id = " + jwt.getSubject() + " , path null");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"The relative path is invalid\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -235,6 +265,7 @@ public class FileResource {
         java.nio.file.Path res = root.resolve(path).normalize();
 
         if (!res.startsWith(root)) {
+            logger.ErrorLog("POST /api/files/upload, Id = " + jwt.getSubject() + " , path = " + path + " , not allowed");
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"message\": \"Path traversal attack detected\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -243,6 +274,7 @@ public class FileResource {
 
         java.nio.file.Path parent = res.getParent();
         if (!Files.exists(parent)) {
+            logger.ErrorLog("POST /api/files/upload, Id = " + jwt.getSubject() + " , path = " + path + " , not found");
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("{\"message\": \"The project could not be found\"}")
                     .type(MediaType.APPLICATION_JSON)
@@ -251,8 +283,10 @@ public class FileResource {
 
         try {
             Files.write(res, content);
+            logger.Log("POST /api/files/upload, Id = " + jwt.getSubject() + " , path = " + path);
             return Response.status(Response.Status.CREATED).build();
         } catch (IOException e) {
+            logger.ErrorLog("POST /api/files/upload, Id = " + jwt.getSubject() + " , path = " + path + " , error upload");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"message\": \"Error file\"}")
                     .type(MediaType.APPLICATION_JSON)
