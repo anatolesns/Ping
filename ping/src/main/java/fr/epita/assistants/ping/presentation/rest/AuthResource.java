@@ -7,7 +7,7 @@ import fr.epita.assistants.ping.request.NewUserRequest;
 import fr.epita.assistants.ping.request.UpdateUserRequest;
 import fr.epita.assistants.ping.response.UserResponse;
 import fr.epita.assistants.ping.response.UserResponseList;
-import io.smallrye.jwt.build.Jwt;
+import fr.epita.assistants.ping.service.AuthService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.persistence.NoResultException;
@@ -18,12 +18,8 @@ import jakarta.ws.rs.core.Response;
 import fr.epita.assistants.ping.utils.HashUtils;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import fr.epita.assistants.ping.utils.Logger;
 
@@ -40,6 +36,9 @@ public class AuthResource {
 
     @Inject
     Logger logger;
+
+    @Inject
+    AuthService authService;
 
     @GET
     @Path("/all")
@@ -74,7 +73,7 @@ public class AuthResource {
                     .entity("{\"message\": \"The login or the password is invalid\"}")
                     .build();
         }
-        if (is_valid(request.login) == false) {
+        if (!authService.isValidLogin(request.login)) {
             logger.ErrorLog("POST /api/user, Id = " + jwt.getSubject() + " , invalid login format");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"Invalid login format\"}")
@@ -88,28 +87,7 @@ public class AuthResource {
                     .build();
         }
 
-        String separator;
-
-        if (request.login.contains(".")) {
-            separator = "\\.";
-        } else {
-            separator = "_";
-        }
-        String[] tab = request.login.split(separator);
-        StringBuilder aux = new StringBuilder();
-
-        for (String part : tab) {
-            if (!part.isEmpty()) {
-            
-                if (aux.length() > 0) {
-                    aux.append(" ");
-                }
-                String temp = Character.toUpperCase(part.charAt(0)) + part.substring(1);
-                aux.append(temp);
-            }
-        }
-
-        String Name = aux.toString();
+        String Name = authService.generateDisplayName(request.login);
 
         String password;
         try {
@@ -138,13 +116,13 @@ public class AuthResource {
     @Path("/login")
     @Transactional
     public Response login(LoginRequest request) {
-        if (is_valid(request.login) == false) {
+        if (!authService.isValidLogin(request.login)) {
             logger.ErrorLog("POST /api/user/login , login = " + request.login + " , invalid login format");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"message\": \"Invalid login format\"}")
                     .build();
         }
-        
+
         try {
             UserModel user = userRepository.findByLogin(request.login);
 
@@ -155,19 +133,7 @@ public class AuthResource {
                         .entity("{\"message\": \"Wrong password\"}")
                         .build();
             }
-            Set<String> roles = new HashSet<>();
-            if (user.getIsAdmin() != null && user.getIsAdmin()) {
-                roles.add("admin");
-            } else {
-                roles.add("user");
-            }
-            String token = Jwt.claims()
-            .issuer("Groupe7")
-                .subject(user.getId().toString())
-                .groups(roles)
-                .issuedAt(Instant.now().getEpochSecond())
-                .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS).getEpochSecond())
-                .sign();
+            String token = authService.generateToken(user);
 
             logger.Log("POST /api/user/login : login = " + request.login + " , userId = " + user.getId());
             return Response.ok("{\"token\": \"" + token + "\"}").build();
@@ -198,19 +164,7 @@ public class AuthResource {
                         .entity("{\"message\": \"The user could not be found\"}")
                         .build();
             }
-            Set<String> roles = new HashSet<>();
-            if (user.getIsAdmin() != null && user.getIsAdmin()) {
-                roles.add("admin");
-            } else {
-                roles.add("user");
-            }
-            String token = Jwt.claims()
-                    .issuer("Groupe7")
-                    .subject(user.getId().toString())
-                    .groups(roles)
-                    .issuedAt(Instant.now().getEpochSecond())
-                    .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS).getEpochSecond())
-                    .sign();
+            String token = authService.generateToken(user);
             logger.Log("GET /api/user/refresh , Id = " + subject);
             return Response.ok("{\"token\": \"" + token + "\"}").build();
         } catch (Exception e) {
@@ -219,34 +173,6 @@ public class AuthResource {
                     .entity("{\"message\": \"error\"}")
                     .build();
         }
-    }
-
-    private boolean is_valid(String login) {
-        if (login == null || login.isBlank()) {
-            return false;
-        }
-        int d = 0;
-        int u = 0;
-        for (int i = 0; i < login.length(); i++) {
-            if (login.charAt(i) == '.') 
-            {
-                if (i==0 || i == login.length()-1){
-                    return false;
-                }
-                d++;
-            }
-            if (login.charAt(i) == '_') 
-            {
-                if (i==0 || i == login.length()-1){
-                    return false;
-                }
-                u++;
-            }
-        }
-        if ((d == 1 && u == 0) || (u == 1 && d == 0)) {
-            return true;
-        }
-        return false;
     }
 
     @GET
