@@ -1,0 +1,13 @@
+image: maven:3.9.6-eclipse-temurin-21
+
+cache:
+  paths:
+    - .m2/repository
+
+stages:
+  - build
+
+compile-job:
+  stage: build
+  script:
+    - mvn clean compile
