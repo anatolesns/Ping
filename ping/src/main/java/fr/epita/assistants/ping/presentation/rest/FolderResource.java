@@ -81,8 +81,8 @@ public class FolderResource {
 
     @DELETE
     public Response deleteFolder(PathRequest request) {
-        if (request == null || request.relativePath == null || request.relativePath.isBlank()) {
-            throw ErrorsCode.INVALID_PATH.get("null or empty");
+        if (request == null || request.relativePath == null) {
+            throw ErrorsCode.INVALID_PATH.get("null");
         }
         Path target = fs.resolve(request.relativePath);
         if (target == null) {
