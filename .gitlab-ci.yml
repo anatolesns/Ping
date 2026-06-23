@@ -1,0 +1,26 @@
+image: maven:3.9.6-eclipse-temurin-21
+
+stages:
+  - build
+  - test
+
+compile-job:
+  stage: build
+  script:
+    - mvn clean compile
+
+test-job:
+  stage: test
+  services:
+    - name: postgres:17
+      alias: db-test
+  variables:
+    POSTGRES_DB: ping
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://db-test:5432/ping
+    QUARKUS_DATASOURCE_USERNAME: postgres
+    QUARKUS_DATASOURCE_PASSWORD: postgres
+    QUARKUS_DEVSERVICES_ENABLED: "false"
+  script:
+    - mvn clean test
