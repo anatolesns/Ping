@@ -8,7 +8,7 @@ compile-job:
   stage: build
   script:
     - cd ping
-    - mvn clean compile
+    - docker compose up
 
 test-job:
   stage: test
