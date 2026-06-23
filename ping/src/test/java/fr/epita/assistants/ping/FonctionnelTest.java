@@ -20,7 +20,7 @@ public class FonctionnelTest {
         .when()
             .post("/api/user/login")
         .then()
-            .statusCode(200);
+            .statusCode(202);
     }
     
     @Test
