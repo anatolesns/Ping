@@ -7,6 +7,7 @@ stages:
 compile-job:
   stage: build
   script:
+    - cd ping
     - mvn clean compile
 
 test-job:
