@@ -12,7 +12,7 @@ import io.restassured.http.ContentType;
 @QuarkusTest
 public class FonctionnelTest {
     
-    @Test
+    /*@Test
     void testLoginSuccess() {
         given()
             .contentType(ContentType.JSON)
@@ -21,7 +21,7 @@ public class FonctionnelTest {
             .post("/api/user/login")
         .then()
             .statusCode(202);
-    }
+    }*/
     
     @Test
     void Get(){

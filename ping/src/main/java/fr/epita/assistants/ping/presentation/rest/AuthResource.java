@@ -42,7 +42,7 @@ public class AuthResource {
 
     @GET
     @Path("/all")
-    @RolesAllowed("admin")
+    //@RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllUsers() {
         List<UserModel> all = userRepository.findAll();

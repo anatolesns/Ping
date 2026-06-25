@@ -1,30 +1,33 @@
 image: maven:3.9.6-eclipse-temurin-21
 
 cache:
-  paths:
-    - .m2/repository
+paths:
+- .m2/repository
 
 variables:
-  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
-  POSTGRES_DB: ping
-  POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: postgres
+MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+POSTGRES_DB: ping
+POSTGRES_USER: postgres
+POSTGRES_PASSWORD: postgres
 
 stages:
-  - docker
+- docker
 
-docker-build:
-  stage: docker
-  image: docker:27
-  services:
-    - name: docker:27-dind
-      command: ["--tls=false"]
-  variables:
-    DOCKER_HOST: "tcp://docker:2375"
-    DOCKER_TLS_CERTDIR: ""
-  before_script:
-    - apk add --no-cache docker-compose
-  script:
-    - cd ping
-    - docker-compose build
-    - docker-compose up -d
+compile-job:
+stage: build
+script:
+- cd ping
+- mvn clean compile -DskipTests
+
+test-job:
+stage: test
+services:
+- name: postgres:17
+alias: postgres
+variables:
+QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/ping"
+QUARKUS_DATASOURCE_USERNAME: "postgres"
+QUARKUS_DATASOURCE_PASSWORD: "postgres"
+script:
+- cd ping
+- mvn test
