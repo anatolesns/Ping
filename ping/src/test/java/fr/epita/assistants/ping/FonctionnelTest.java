@@ -12,16 +12,16 @@ import io.restassured.http.ContentType;
 @QuarkusTest
 public class FonctionnelTest {
     
-    /*@Test
+    @Test
     void testLoginSuccess() {
         given()
             .contentType(ContentType.JSON)
-            .body("{\"login\": \"admin.admin\", \"password\": \"belpe\"}")
+            .body("{\"login\": \"admin.admin\", \"password\": \"admin\"}")
         .when()
             .post("/api/user/login")
         .then()
-            .statusCode(202);
-    }*/
+            .statusCode(200);
+    }
     
     @Test
     void Get(){

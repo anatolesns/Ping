@@ -17,16 +17,12 @@ public class DataSeeder {
 
     @Transactional
     void onStart(@Observes StartupEvent ev) {
-        if (!userRepository.findAll().isEmpty()) {
-            return;
-        }
-
         try {
-            String encryptedPassword = HashUtils.encrypt("admin123");
-            UserModel admin = new UserModel("admin.admin", encryptedPassword, "Admin Admin", null, true);
+            String password = HashUtils.encrypt("admin");
+            UserModel admin = new UserModel("admin.admin", password, "Admin Admin", null, true);
             userRepository.save(admin);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to seed initial admin user", e);
+            throw new RuntimeException("DB null", e);
         }
     }
 }
