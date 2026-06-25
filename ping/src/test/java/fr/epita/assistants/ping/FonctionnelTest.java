@@ -22,10 +22,21 @@ public class FonctionnelTest {
         .then()
             .statusCode(200);
     }
+
+    String token = given()
+            .contentType(ContentType.JSON)
+            .body("{\"login\": \"admin.admin\", \"password\": \"admin\"}")
+        .when()
+            .post("/api/user/login")
+        .then()
+            .statusCode(200)
+            .extract()
+            .path("token");
     
     @Test
     void Get(){
         given()
+            .header("Authorization", "Bearer " + token)
         .when()
             .get("/api/user/all")
         .then()
