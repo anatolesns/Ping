@@ -11,7 +11,8 @@ POSTGRES_USER: postgres
 POSTGRES_PASSWORD: postgres
 
 stages:
-- docker
+- build
+- test
 
 compile-job:
 stage: build
