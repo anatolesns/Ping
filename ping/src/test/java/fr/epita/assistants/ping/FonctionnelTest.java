@@ -23,9 +23,7 @@ public class FonctionnelTest {
             .statusCode(200);
     }
 
-    @Test
-    void Get(){
-        String token = given()
+    String token = given()
             .contentType(ContentType.JSON)
             .body("{\"login\": \"admin.admin\", \"password\": \"admin\"}")
         .when()
@@ -34,6 +32,9 @@ public class FonctionnelTest {
             .statusCode(200)
             .extract()
             .path("token");
+
+    @Test
+    void Get(){
         given()
             .header("Authorization", "Bearer " + token)
         .when()
