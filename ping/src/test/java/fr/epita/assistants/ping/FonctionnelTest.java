@@ -281,7 +281,7 @@ public class FonctionnelTest {
         String id = given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
-            .body("{\"login\": \"noExist\", \"password\": \"password\", \"isAdmin\": false}")
+            .body("{\"login\": \"test.test\", \"password\": \"password\", \"isAdmin\": false}")
         .when()
             .post("/api/user")
         .then()
