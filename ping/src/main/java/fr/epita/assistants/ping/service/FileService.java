@@ -21,6 +21,9 @@ public class FileService {
         if (relativePath != null){
             safe = relativePath;
         }
+        if (safe.contains("..")) {
+            return null;
+        }
         Path target = root.resolve(safe).normalize();
 
         if (!target.startsWith(root)) {

@@ -1,5 +1,6 @@
 package fr.epita.assistants.ping.data;
 
+import java.util.List;
 import fr.epita.assistants.ping.data.model.UserModel;
 import fr.epita.assistants.ping.data.repository.UserRepository;
 import fr.epita.assistants.ping.utils.HashUtils;
@@ -17,6 +18,10 @@ public class DataSeeder {
 
     @Transactional
     void onStart(@Observes StartupEvent ev) {
+        if (userRepository.loginExists("admin.admin")) {
+            return;
+        }
+
         try {
             String password = HashUtils.encrypt("admin");
             UserModel admin = new UserModel("admin.admin", password, "Admin Admin", null, true);
