@@ -276,6 +276,7 @@ public class FonctionnelTest {
             .statusCode(401);
     }
 
+    
     @Test
     void deleteUser() {
         String id = given()
