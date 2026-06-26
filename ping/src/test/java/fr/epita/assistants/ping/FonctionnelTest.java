@@ -295,6 +295,6 @@ public class FonctionnelTest {
         .when()
             .delete("/api/user/" + id)
         .then()
-            .statusCode(200);
+            .statusCode(204);
     }
 }
