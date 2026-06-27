@@ -1,0 +1,5 @@
+.DS_store
+.github*
+ping/target/*
+AdminBootstrap.java
+AdminInitializer.java
