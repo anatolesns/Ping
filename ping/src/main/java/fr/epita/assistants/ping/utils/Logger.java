@@ -29,10 +29,9 @@ public class Logger {
 
 
     public void Log(String message){
-        String log = "[" + timestamp() + "] " + message;
-        
+        String log = GREEN_TEXT + "[" + timestamp() + "] " + message + RESET_TEXT;
+
         if (log_file != null && !log_file.isBlank()) {
-        
             try (FileWriter f = new FileWriter(log_file, true);
                 PrintWriter write = new PrintWriter(f)) {
                 write.println(log);
@@ -46,10 +45,9 @@ public class Logger {
     }
 
     public void ErrorLog(String message){
-        String log = "[" + timestamp() + "] " + message;
-        System.out.println(error_file);
+        String log = RED_TEXT + "[" + timestamp() + "] " + message + RESET_TEXT;
+
         if (error_file != null && !error_file.isBlank()) {
-        
             try (FileWriter f = new FileWriter(error_file, true);
                 PrintWriter write = new PrintWriter(f)) {
                 write.println(log);

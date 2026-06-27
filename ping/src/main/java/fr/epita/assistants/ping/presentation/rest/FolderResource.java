@@ -25,6 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.eclipse.microprofile.jwt.JsonWebToken;
+
+import fr.epita.assistants.ping.utils.Logger;
+
 @jakarta.ws.rs.Path("/api/folders")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -34,13 +38,21 @@ public class FolderResource {
     @Inject
     FolderService fs;
 
+    @Inject
+    Logger logger;
+
+    @Inject
+    JsonWebToken jwt;
+
     @GET
     public Response listFolder(@QueryParam("path") String path) {
         Path target = fs.resolve(path);
         if (target == null) {
+            logger.ErrorLog("GET /api/folders/ Id = " + jwt.getSubject() + "path traversal");
             throw ErrorsCode.PATH_TRAVERSAL.get(path);
         }
         if (!Files.exists(target) || !Files.isDirectory(target)) {
+            logger.ErrorLog("GET /api/folders/ Id = " + jwt.getSubject() + "not found");
             throw ErrorsCode.NOT_FOUND_ERROR.get("folder " + path);
         }
 
@@ -54,41 +66,51 @@ public class FolderResource {
                 entries.add(new FSEntryResponse(name, rel, isDir));
             }
         } catch (IOException e) {
+            logger.ErrorLog("GET /api/folders/ Id = " + jwt.getSubject() + "not found");
             throw ErrorsCode.NOT_FOUND_ERROR.get("folder " + path);
         }
+        logger.Log("GET /api/folders/ Id = " + jwt.getSubject() + " path = " + path);
         return Response.ok(entries).build();
     }
 
     @POST
     public Response createFolder(PathRequest request) {
         if (request == null || request.relativePath == null || request.relativePath.isBlank()) {
+            logger.ErrorLog("POST /api/folders/ Id = " + jwt.getSubject() + "invalid path");
             throw ErrorsCode.INVALID_PATH.get("null or empty");
         }
         Path target = fs.resolve(request.relativePath);
         if (target == null) {
+            logger.ErrorLog("POST /api/folders/ Id = " + jwt.getSubject() + "path traversal");
             throw ErrorsCode.PATH_TRAVERSAL.get(request.relativePath);
         }
         if (Files.exists(target)) {
+            logger.ErrorLog("POST /api/folders/ Id = " + jwt.getSubject() + "already exists");
             throw ErrorsCode.ALREADY_EXISTS.get("folder " + request.relativePath);
         }
         try {
             Files.createDirectories(target);
         } catch (IOException e) {
+            logger.ErrorLog("POST /api/folders/ Id = " + jwt.getSubject() + "not found");
             throw ErrorsCode.NOT_FOUND_ERROR.get("project");
         }
+        logger.Log("POST /api/folders/ Id = " + jwt.getSubject() + " path = " + request.relativePath);
         return Response.status(Response.Status.CREATED).build();
     }
 
     @DELETE
     public Response deleteFolder(PathRequest request) {
         if (request == null || request.relativePath == null) {
+            logger.ErrorLog("DELETE /api/folders/ Id = " + jwt.getSubject() + "invalid path");
             throw ErrorsCode.INVALID_PATH.get("null");
         }
         Path target = fs.resolve(request.relativePath);
         if (target == null) {
+            logger.ErrorLog("DELETE /api/folders/ Id = " + jwt.getSubject() + "path traversal");
             throw ErrorsCode.PATH_TRAVERSAL.get(request.relativePath);
         }
         if (!Files.exists(target) || !Files.isDirectory(target)) {
+            logger.ErrorLog("DELETE /api/folders/ Id = " + jwt.getSubject() + "not found");
             throw ErrorsCode.NOT_FOUND_ERROR.get("folder " + request.relativePath);
         }
 
@@ -100,8 +122,10 @@ public class FolderResource {
                 deleteRecursively(target);
             }
         } catch (IOException e) {
+            logger.ErrorLog("DELETE /api/folders/ Id = " + jwt.getSubject() + "not found");
             throw ErrorsCode.NOT_FOUND_ERROR.get("folder " + request.relativePath);
         }
+        logger.Log("DELETE /api/folders/ Id = " + jwt.getSubject() + " path = " + request.relativePath);
         return Response.noContent().build();
     }
 
@@ -110,24 +134,30 @@ public class FolderResource {
     public Response moveFolder(MoveRequest request) {
         if (request == null || request.src == null || request.src.isBlank()
                 || request.dst == null || request.dst.isBlank()) {
+            logger.ErrorLog("PUT /api/folders/move Id = " + jwt.getSubject() + "invalid path");
             throw ErrorsCode.INVALID_PATH.get("source or destination null or empty");
         }
         Path src = fs.resolve(request.src);
         Path dst = fs.resolve(request.dst);
         if (src == null || dst == null) {
+            logger.ErrorLog("PUT /api/folders/move Id = " + jwt.getSubject() + "path traversal");
             throw ErrorsCode.PATH_TRAVERSAL.get(request.src + " -> " + request.dst);
         }
         if (!Files.exists(src) || !Files.isDirectory(src)) {
+            logger.ErrorLog("PUT /api/folders/move Id = " + jwt.getSubject() + "not found");
             throw ErrorsCode.NOT_FOUND_ERROR.get("source folder " + request.src);
         }
         if (Files.exists(dst)) {
+            logger.ErrorLog("PUT /api/folders/move Id = " + jwt.getSubject() + "already exists");
             throw ErrorsCode.ALREADY_EXISTS.get("destination folder " + request.dst);
         }
         try {
             Files.move(src, dst);
         } catch (IOException e) {
+            logger.ErrorLog("PUT /api/folders/move Id = " + jwt.getSubject() + "not found");
             throw ErrorsCode.NOT_FOUND_ERROR.get("project");
         }
+        logger.Log("PUT /api/folders/move Id = " + jwt.getSubject() + " src = " + request.src + " dst = " + request.dst);
         return Response.noContent().build();
     }
 
