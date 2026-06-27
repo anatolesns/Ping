@@ -18,14 +18,17 @@ public class DataSeeder {
 
     @Transactional
     void onStart(@Observes StartupEvent ev) {
-        if (userRepository.loginExists("admin.admin")) {
-            return;
-        }
-
         try {
-            String password = HashUtils.encrypt("admin");
-            UserModel admin = new UserModel("admin.admin", password, "Admin Admin", null, true);
-            userRepository.save(admin);
+            if (!userRepository.loginExists("admin.admin")) {
+                String password = HashUtils.encrypt("admin");
+                UserModel admin = new UserModel("admin.admin", password, "Admin Admin", null, true);
+                userRepository.save(admin);
+            }
+            if (!userRepository.loginExists("benevole.benevole")) {
+                String se = HashUtils.encrypt("benevole");
+                UserModel benevole = new UserModel("benevole.benevole", se, "Benevole Benevole", null, false);
+                userRepository.save(benevole);
+            }
         } catch (Exception e) {
             throw new RuntimeException("DB null", e);
         }
