@@ -19,10 +19,12 @@ function Login() {
       await login(email, password);
       
       // Si on arrive ici, c'est que le login a réussi et le token est stocké
-      if (email === 'admin.admin') {
-        navigate('/admin');
+      localStorage.setItem("currentVolunteerLogin", email);
+
+      if (email === "admin.admin") {
+        navigate("/admin");
       } else {
-        navigate('/benevole');
+        navigate("/benevole");
       }
     } catch (err) {
       setError(err.message || 'Une erreur est survenue lors de la connexion');
@@ -100,7 +102,16 @@ function Login() {
           {/* Liens de dev pour tester facilement sans login au besoin */}
           <div className="mt-8 pt-4 border-t border-gray-100 flex justify-center gap-4">
             <button type="button" onClick={() => navigate('/admin')} className="text-xs text-gray-500 hover:text-gray-900">Forcer l'accès Admin</button>
-            <button type="button" onClick={() => navigate('/benevole')} className="text-xs text-gray-500 hover:text-gray-900">Forcer l'accès Bénévole</button>
+            <button
+  type="button"
+  onClick={() => {
+    localStorage.setItem("currentVolunteerLogin", "benevole.test");
+    navigate("/benevole");
+  }}
+  className="text-xs text-gray-500 hover:text-gray-900"
+>
+  Forcer l'accès Bénévole
+</button>
           </div>
         </div>
       </div>
