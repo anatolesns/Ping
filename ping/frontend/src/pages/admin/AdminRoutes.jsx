@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { getJsonFile, saveJsonFile } from '../../services/api';
 
 const TABS = [
   { id: 'poste', label: "Planning par Poste", icon: "calendar" },
@@ -19,7 +18,6 @@ const ROLES = [
 const DAYS = ["Jeudi", "Vendredi", "Samedi", "Dimanche"];
 const TIME_SLOTS = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
 
-// Mapping pour retrouver les emojis dans les données (puisque les shifts ont "🎫 Billetterie")
 const ROLE_EMOJIS = {
   "Billetterie": "🎫 Billetterie",
   "Accueil": "👋 Accueil",
@@ -32,58 +30,56 @@ function AdminHome() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('poste');
   const [activeFilter, setActiveFilter] = useState('Tous les postes');
-  
+
   const [shiftsData, setShiftsData] = useState([]);
-  const [volunteersData, setVolunteersData] = useState([]);  // State pour la modale d'assignation
+  const [volunteersData, setVolunteersData] = useState([]);
   const [selectedShiftForAssign, setSelectedShiftForAssign] = useState(null);
 
-  // States pour le formulaire d'ajout
   const [newVolName, setNewVolName] = useState('');
   const [newVolAge, setNewVolAge] = useState('');
   const [newVolPhone, setNewVolPhone] = useState('');
   const [newVolAvails, setNewVolAvails] = useState([]);
   const [newAvailDay, setNewAvailDay] = useState('');
   const [newAvailTime, setNewAvailTime] = useState('');
-  
-  // State pour la modale d'édition de bénévole
+
   const [editVol, setEditVol] = useState(null);
   const [editAvailDay, setEditAvailDay] = useState('');
   const [editAvailTime, setEditAvailTime] = useState('');
-  
-  // State pour la modale d'informations (Planning par Bénévole)
+
   const [infoVolName, setInfoVolName] = useState(null);
+
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
   // Charger les créneaux
   useEffect(() => {
     const fetchShifts = async () => {
       try {
-        const data = await getJsonFile('shifts.json');
+        // TODO: Récupérer les créneaux depuis la nouvelle API (ex: GET /api/shifts)
+        /*
+        const data = await getShiftsFromAPI();
         if (data) {
           setShiftsData(data);
-        } else {
-          // Si le fichier n'existe pas, on initialise avec des données vides pour chaque case possible
-          const initialShifts = [];
-          let id = 1;
-          for (const day of DAYS) {
-            for (const time of TIME_SLOTS) {
-              for (const role of ROLES) {
-                initialShifts.push({
-                  id: id++,
-                  day,
-                  time,
-                  role: ROLE_EMOJIS[role],
-                  volunteers: [] // Vide par défaut
-                });
-              }
-            }
-          }
-          setShiftsData(initialShifts);
         }
+        */
+        setShiftsData([]);
 
-        const vData = await getJsonFile('volunteers.json');
+        // TODO: Récupérer les bénévoles depuis la nouvelle API (ex: GET /api/volunteers)
+        /*
+        const vData = await getVolunteersFromAPI();
         if (vData) {
           setVolunteersData(vData);
         }
+        */
+
+        // TODO: Récupérer les notifications depuis la nouvelle API (ex: GET /api/notifications)
+        /*
+        const nData = await getNotificationsFromAPI();
+        if (nData) {
+          setNotifications(nData);
+        }
+        */
+        setNotifications([]);
       } catch (err) {
         console.error("Erreur de chargement", err);
       }
@@ -91,11 +87,9 @@ function AdminHome() {
     fetchShifts();
   }, []);
 
-  // --- Données dérivées pour la vue Bénévole ---
   const volunteersWithShifts = useMemo(() => {
     const volMap = {};
-    
-    // Initialiser avec tous les bénévoles connus
+
     volunteersData.forEach(v => {
       volMap[v.name] = [];
     });
@@ -127,7 +121,8 @@ function AdminHome() {
         return s;
       });
       setShiftsData(updatedShifts);
-      await saveJsonFile('shifts.json', updatedShifts);
+
+      // TODO: Sauvegarder la suppression du bénévole pour ce créneau via l'API (ex: DELETE /api/shifts/{id}/volunteer)
     } catch (err) {
       alert("Erreur lors de la mise à jour");
     }
@@ -145,7 +140,7 @@ function AdminHome() {
           shiftExists = true;
           const vols = s.volunteers || [];
           if (!vols.includes(volunteerName)) {
-             return { ...s, volunteers: [...vols, volunteerName] };
+            return { ...s, volunteers: [...vols, volunteerName] };
           }
         }
         return s;
@@ -162,7 +157,9 @@ function AdminHome() {
       }
 
       setShiftsData(updatedShifts);
-      await saveJsonFile('shifts.json', updatedShifts);
+
+      // TODO: Sauvegarder l'assignation du bénévole au créneau via l'API (ex: POST /api/shifts/{id}/volunteer)
+
       setSelectedShiftForAssign(null);
     } catch (err) {
       alert("Erreur lors de l'assignation.");
@@ -173,9 +170,9 @@ function AdminHome() {
     if (newAvailDay && newAvailTime) {
       let daysToAdd = newAvailDay === "Tous les jours" ? DAYS : [newAvailDay];
       let timesToAdd = newAvailTime === "Tous les créneaux" ? TIME_SLOTS : [newAvailTime];
-      
+
       let newAvails = [...newVolAvails];
-      
+
       daysToAdd.forEach(d => {
         timesToAdd.forEach(t => {
           if (!newAvails.some(a => a.day === d && a.time === t)) {
@@ -183,7 +180,7 @@ function AdminHome() {
           }
         });
       });
-      
+
       setNewVolAvails(newAvails);
       setNewAvailDay('');
       setNewAvailTime('');
@@ -195,7 +192,7 @@ function AdminHome() {
       alert("Veuillez remplir les informations obligatoires.");
       return;
     }
-    
+
     const newVol = {
       id: Date.now(),
       name: newVolName,
@@ -203,21 +200,21 @@ function AdminHome() {
       phone: newVolPhone,
       availabilities: newVolAvails
     };
-    
+
     const updatedVolunteers = [...volunteersData, newVol];
-    
+
     setVolunteersData(updatedVolunteers);
-    
-    // Réinitialiser le formulaire
+
     setNewVolName('');
     setNewVolAge('');
     setNewVolPhone('');
     setNewVolAvails([]);
-    
+
     try {
-      await saveJsonFile('volunteers.json', updatedVolunteers);
+      // TODO: Sauvegarder le nouveau bénévole via l'API (ex: POST /api/volunteers)
+
       alert("Bénévole enregistré avec succès !");
-    } catch(err) {
+    } catch (err) {
       alert("Erreur lors de la sauvegarde.");
     }
   };
@@ -227,7 +224,7 @@ function AdminHome() {
       let daysToAdd = editAvailDay === "Tous les jours" ? DAYS : [editAvailDay];
       let timesToAdd = editAvailTime === "Tous les créneaux" ? TIME_SLOTS : [editAvailTime];
       let newAvails = [...(editVol.availabilities || [])];
-      
+
       daysToAdd.forEach(d => {
         timesToAdd.forEach(t => {
           if (!newAvails.some(a => a.day === d && a.time === t)) {
@@ -235,7 +232,7 @@ function AdminHome() {
           }
         });
       });
-      
+
       setEditVol({ ...editVol, availabilities: newAvails });
       setEditAvailDay('');
       setEditAvailTime('');
@@ -247,45 +244,42 @@ function AdminHome() {
       alert("Veuillez remplir les informations obligatoires.");
       return;
     }
-    
+
     const oldVol = volunteersData.find(v => v.id === editVol.id);
     const updatedVolunteers = volunteersData.map(v => v.id === editVol.id ? editVol : v);
-    
+
     if (oldVol) {
-       let shiftsModified = false;
-       const newShifts = shiftsData.map(s => {
-          let vols = s.volunteers ? [...s.volunteers] : [];
-          
-          if (vols.includes(oldVol.name)) {
-             // Vérifier s'il est toujours dispo pour ce créneau
-             const isStillAvailable = editVol.availabilities?.some(a => a.day === s.day && a.time === s.time);
-             
-             if (!isStillAvailable) {
-                // Le retirer du créneau
-                vols = vols.filter(n => n !== oldVol.name);
-                shiftsModified = true;
-             } else if (oldVol.name !== editVol.name) {
-                // Mettre à jour son nom
-                vols = vols.map(n => n === oldVol.name ? editVol.name : n);
-                shiftsModified = true;
-             }
+      let shiftsModified = false;
+      const newShifts = shiftsData.map(s => {
+        let vols = s.volunteers ? [...s.volunteers] : [];
+
+        if (vols.includes(oldVol.name)) {
+          const isStillAvailable = editVol.availabilities?.some(a => a.day === s.day && a.time === s.time);
+
+          if (!isStillAvailable) {
+            vols = vols.filter(n => n !== oldVol.name);
+            shiftsModified = true;
+          } else if (oldVol.name !== editVol.name) {
+            vols = vols.map(n => n === oldVol.name ? editVol.name : n);
+            shiftsModified = true;
           }
-          return { ...s, volunteers: vols };
-       });
-       
-       if (shiftsModified) {
-         setShiftsData(newShifts);
-         await saveJsonFile('shifts.json', newShifts);
-       }
+        }
+        return { ...s, volunteers: vols };
+      });
+
+      if (shiftsModified) {
+        setShiftsData(newShifts);
+        // TODO: Mettre à jour les créneaux affectés via l'API si les dispos ont changé
+      }
     }
-    
+
     setVolunteersData(updatedVolunteers);
     setEditVol(null);
-    
+
     try {
-      await saveJsonFile('volunteers.json', updatedVolunteers);
+      // TODO: Mettre à jour le profil du bénévole via l'API (ex: PUT /api/volunteers/{id})
       alert("Profil mis à jour avec succès !");
-    } catch(err) {
+    } catch (err) {
       alert("Erreur lors de la sauvegarde.");
     }
   };
@@ -298,35 +292,46 @@ function AdminHome() {
 
   const handleDeleteVolunteer = async (id) => {
     if (!window.confirm("Voulez-vous vraiment supprimer ce bénévole ?")) return;
-    
+
     const volToDelete = volunteersData.find(v => v.id === id);
     const updated = volunteersData.filter(v => v.id !== id);
     setVolunteersData(updated);
-    
+
     if (volToDelete) {
       let shiftsModified = false;
       const newShifts = shiftsData.map(s => {
-         if (s.volunteers?.includes(volToDelete.name)) {
-            shiftsModified = true;
-            return { ...s, volunteers: s.volunteers.filter(n => n !== volToDelete.name) };
-         }
-         return s;
+        if (s.volunteers?.includes(volToDelete.name)) {
+          shiftsModified = true;
+          return { ...s, volunteers: s.volunteers.filter(n => n !== volToDelete.name) };
+        }
+        return s;
       });
       if (shiftsModified) {
         setShiftsData(newShifts);
-        await saveJsonFile('shifts.json', newShifts);
+        // TODO: Mettre à jour les créneaux via l'API pour refléter la suppression
       }
     }
 
     try {
-      await saveJsonFile('volunteers.json', updated);
-    } catch(err) {
+      // TODO: Supprimer le bénévole via l'API (ex: DELETE /api/volunteers/{id})
+    } catch (err) {
       alert("Erreur lors de la suppression.");
     }
   };
 
   return (
     <div className="min-h-screen bg-green-100">
+      {showNotifications && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <h2 className="text-xl font-bold mb-4">Notifications</h2>
+            <div className="space-y-3">
+              <p className="text-gray-600">Aucune nouvelle notification.</p>
+            </div>
+            <button onClick={() => setShowNotifications(false)} className="mt-6 w-full py-2 bg-green-600 text-white rounded-lg">Fermer</button>
+          </div>
+        </div>
+      )}
       <header className="bg-white border-b-2 border-green-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
@@ -344,13 +349,21 @@ function AdminHome() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition-colors relative">
+            <button onClick={() => {
+              setShowNotifications(true);
+              // TODO: Appeler l'API pour marquer les notifications comme lues (ex: PUT /api/notifications/read)
+              setNotifications(notifications.map(n => ({ ...n, read: true })));
+            }} className="flex items-center gap-2 px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition-colors relative">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-bell w-5 h-5">
                 <path d="M10.268 21a2 2 0 0 0 3.464 0"></path>
                 <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path>
               </svg>
               Notifications
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">6</span>
+              {notifications.filter(n => !n.read).length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {notifications.filter(n => !n.read).length}
+                </span>
+              )}
             </button>
             <button onClick={() => navigate('/')} className="flex items-center gap-2 px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-log-out w-5 h-5">
@@ -369,14 +382,13 @@ function AdminHome() {
           <div className="border-b-2 border-green-200 p-4">
             <div className="flex gap-4">
               {TABS.map(tab => (
-                <button 
+                <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-6 py-3 rounded-lg transition-colors flex items-center gap-2 ${
-                    activeTab === tab.id 
+                  className={`px-6 py-3 rounded-lg transition-colors flex items-center gap-2 ${activeTab === tab.id
                       ? "bg-purple-500 text-white shadow-md"
                       : "bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200"
-                  }`}
+                    }`}
                 >
                   {tab.icon === 'calendar' && (
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>
@@ -400,14 +412,13 @@ function AdminHome() {
                   <h2 className="mb-4 text-green-900 text-xl font-semibold">Calendrier de la Semaine</h2>
                   <div className="flex flex-wrap gap-2">
                     {["Tous les postes", ...ROLES].map(filter => (
-                      <button 
+                      <button
                         key={filter}
                         onClick={() => setActiveFilter(filter)}
-                        className={`px-4 py-2 rounded-lg transition-colors ${
-                          activeFilter === filter
+                        className={`px-4 py-2 rounded-lg transition-colors ${activeFilter === filter
                             ? "bg-gray-700 text-white shadow-md"
                             : "bg-green-100 text-green-700 hover:bg-green-600 hover:text-white border border-gray-300"
-                        }`}
+                          }`}
                       >
                         {filter}
                       </button>
@@ -436,7 +447,6 @@ function AdminHome() {
                               {ROLES
                                 .filter(r => activeFilter === 'Tous les postes' || activeFilter === r)
                                 .map(role => {
-                                  // Trouver le créneau correspondant dans les données
                                   const emojiRole = ROLE_EMOJIS[role];
                                   const shift = shiftsData.find(s => s.day === day && s.time === time && s.role === emojiRole);
                                   const volunteers = shift?.volunteers || [];
@@ -456,7 +466,7 @@ function AdminHome() {
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users w-3 h-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                                                 <span className="text-sm">{v}</span>
                                               </div>
-                                              <button 
+                                              <button
                                                 onClick={(e) => { e.stopPropagation(); handleRemoveVolunteer(shift.id, v); }}
                                                 className="text-red-600 hover:text-red-800 font-bold"
                                               >
@@ -478,7 +488,7 @@ function AdminHome() {
                                       </div>
                                     );
                                   }
-                              })}
+                                })}
                             </div>
                           </td>
                         ))}
@@ -488,7 +498,7 @@ function AdminHome() {
                 </table>
               </div>
             )}
-            
+
             {activeTab === 'benevole' && (
               <div className="space-y-4">
                 <h2 className="mb-4 text-green-900 text-xl font-semibold">Liste des Bénévoles</h2>
@@ -499,7 +509,7 @@ function AdminHome() {
                         <h3 className="text-green-900 text-xl font-bold">{vw.name}</h3>
                         <p className="text-green-600 font-medium">{vw.hours} heures totales ({vw.shifts.length} créneaux)</p>
                       </div>
-                      <button 
+                      <button
                         onClick={() => setInfoVolName(vw.name)}
                         className="px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition-colors font-medium"
                       >
@@ -522,40 +532,40 @@ function AdminHome() {
                   <div className="space-y-6">
                     <div>
                       <label className="block mb-2 text-green-800 font-medium">Nom complet *</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={newVolName}
                         onChange={(e) => setNewVolName(e.target.value)}
-                        className="w-full px-4 py-3 bg-white border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" 
-                        placeholder="Nom et prénom" 
+                        className="w-full px-4 py-3 bg-white border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        placeholder="Nom et prénom"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block mb-2 text-green-800 font-medium">Âge *</label>
-                        <input 
-                          type="number" 
+                        <input
+                          type="number"
                           value={newVolAge}
                           onChange={(e) => setNewVolAge(e.target.value)}
-                          className="w-full px-4 py-3 bg-white border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" 
-                          placeholder="Âge" 
+                          className="w-full px-4 py-3 bg-white border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                          placeholder="Âge"
                         />
                       </div>
                       <div>
                         <label className="block mb-2 text-green-800 font-medium">Téléphone *</label>
-                        <input 
-                          type="tel" 
+                        <input
+                          type="tel"
                           value={newVolPhone}
                           onChange={(e) => setNewVolPhone(e.target.value)}
-                          className="w-full px-4 py-3 bg-white border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" 
-                          placeholder="06 12 34 56 78" 
+                          className="w-full px-4 py-3 bg-white border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                          placeholder="06 12 34 56 78"
                         />
                       </div>
                     </div>
                     <div>
                       <label className="block mb-3 text-green-800 font-medium">Disponibilités</label>
                       <div className="flex gap-3 mb-3">
-                        <select 
+                        <select
                           value={newAvailDay}
                           onChange={(e) => setNewAvailDay(e.target.value)}
                           className="flex-1 px-4 py-3 bg-white border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -564,7 +574,7 @@ function AdminHome() {
                           <option value="Tous les jours">Tous les jours</option>
                           {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
                         </select>
-                        <select 
+                        <select
                           value={newAvailTime}
                           onChange={(e) => setNewAvailTime(e.target.value)}
                           className="flex-1 px-4 py-3 bg-white border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -573,7 +583,7 @@ function AdminHome() {
                           <option value="Tous les créneaux">Tous les créneaux</option>
                           {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
                         </select>
-                        <button 
+                        <button
                           onClick={handleAddAvailability}
                           className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
                         >
@@ -593,7 +603,7 @@ function AdminHome() {
                         )}
                       </div>
                     </div>
-                    <button 
+                    <button
                       onClick={handleSaveVolunteer}
                       className="w-full px-6 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors shadow-md"
                     >
@@ -601,12 +611,11 @@ function AdminHome() {
                     </button>
                   </div>
                 </div>
-                
+
                 <div>
                   <h2 className="mb-4 text-green-900 text-xl font-semibold">Liste des bénévoles</h2>
                   <div className="space-y-3">
                     {volunteersData.length > 0 ? volunteersData.map(vol => {
-                      // Compter les créneaux assignés (en croisant avec shiftsData)
                       let assignedCount = 0;
                       shiftsData.forEach(s => {
                         if (s.volunteers?.includes(vol.name)) assignedCount++;
@@ -659,7 +668,7 @@ function AdminHome() {
                 </p>
                 <p className="text-green-800 text-lg"><strong>{selectedShiftForAssign.role.replace(/^[^\s]+\s/, '')}</strong></p>
               </div>
-              
+
               <div className="space-y-2 mb-6 max-h-80 overflow-y-auto">
                 {(() => {
                   const availableVols = volunteersData.filter(vol => {
@@ -676,7 +685,7 @@ function AdminHome() {
                   }
 
                   return availableVols.map(vol => (
-                    <button 
+                    <button
                       key={vol.id}
                       onClick={() => handleAssignVolunteer(vol.name)}
                       className="w-full p-4 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg transition-colors text-left border-2 border-green-200 hover:border-green-400 font-medium"
@@ -686,8 +695,8 @@ function AdminHome() {
                   ));
                 })()}
               </div>
-              
-              <button 
+
+              <button
                 onClick={() => setSelectedShiftForAssign(null)}
                 className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium shadow-md"
               >
@@ -705,40 +714,40 @@ function AdminHome() {
               <div className="space-y-6">
                 <div>
                   <label className="block mb-2 text-green-800 font-medium">Nom complet *</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={editVol.name}
-                    onChange={(e) => setEditVol({...editVol, name: e.target.value})}
-                    className="w-full px-4 py-3 bg-green-50 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" 
-                    placeholder="Nom et prénom" 
+                    onChange={(e) => setEditVol({ ...editVol, name: e.target.value })}
+                    className="w-full px-4 py-3 bg-green-50 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Nom et prénom"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block mb-2 text-green-800 font-medium">Âge *</label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       value={editVol.age}
-                      onChange={(e) => setEditVol({...editVol, age: e.target.value})}
-                      className="w-full px-4 py-3 bg-green-50 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" 
-                      placeholder="Âge" 
+                      onChange={(e) => setEditVol({ ...editVol, age: e.target.value })}
+                      className="w-full px-4 py-3 bg-green-50 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      placeholder="Âge"
                     />
                   </div>
                   <div>
                     <label className="block mb-2 text-green-800 font-medium">Téléphone *</label>
-                    <input 
-                      type="tel" 
+                    <input
+                      type="tel"
                       value={editVol.phone}
-                      onChange={(e) => setEditVol({...editVol, phone: e.target.value})}
-                      className="w-full px-4 py-3 bg-green-50 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" 
-                      placeholder="06 12 34 56 78" 
+                      onChange={(e) => setEditVol({ ...editVol, phone: e.target.value })}
+                      className="w-full px-4 py-3 bg-green-50 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      placeholder="06 12 34 56 78"
                     />
                   </div>
                 </div>
                 <div>
                   <label className="block mb-3 text-green-800 font-medium">Disponibilités</label>
                   <div className="flex gap-3 mb-3">
-                    <select 
+                    <select
                       value={editAvailDay}
                       onChange={(e) => setEditAvailDay(e.target.value)}
                       className="flex-1 px-4 py-3 bg-green-50 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -747,7 +756,7 @@ function AdminHome() {
                       <option value="Tous les jours">Tous les jours</option>
                       {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
-                    <select 
+                    <select
                       value={editAvailTime}
                       onChange={(e) => setEditAvailTime(e.target.value)}
                       className="flex-1 px-4 py-3 bg-green-50 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -756,7 +765,7 @@ function AdminHome() {
                       <option value="Tous les créneaux">Tous les créneaux</option>
                       {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
-                    <button 
+                    <button
                       onClick={handleEditAddAvailability}
                       className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
                     >
@@ -771,7 +780,7 @@ function AdminHome() {
                             <span className="px-3 py-1 bg-green-600 text-white rounded-full text-sm font-medium">{avail.day}</span>
                             <span className="text-green-700 font-medium">{avail.time}</span>
                           </div>
-                          <button onClick={() => setEditVol({...editVol, availabilities: editVol.availabilities.filter((_, i) => i !== idx)})} className="text-red-600 hover:text-red-800 font-bold text-lg">×</button>
+                          <button onClick={() => setEditVol({ ...editVol, availabilities: editVol.availabilities.filter((_, i) => i !== idx) })} className="text-red-600 hover:text-red-800 font-bold text-lg">×</button>
                         </div>
                       ))
                     ) : (
@@ -780,13 +789,13 @@ function AdminHome() {
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <button 
+                  <button
                     onClick={handleSaveEdit}
                     className="flex-1 px-6 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors shadow-md"
                   >
                     Enregistrer les modifications
                   </button>
-                  <button 
+                  <button
                     onClick={() => setEditVol(null)}
                     className="px-6 py-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors shadow-md"
                   >
@@ -802,7 +811,7 @@ function AdminHome() {
         {infoVolName && (() => {
           const fullVol = volunteersData.find(v => v.name === infoVolName);
           const assignedShifts = volunteersWithShifts.find(v => v.name === infoVolName)?.shifts || [];
-          
+
           return (
             <div className="fixed inset-0 flex items-center justify-center z-[100] p-4 bg-black/40">
               <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full border-2 border-green-200 max-h-[90vh] overflow-y-auto">
@@ -852,7 +861,7 @@ function AdminHome() {
                     </div>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => setInfoVolName(null)}
                   className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-semibold shadow-md"
                 >
@@ -862,8 +871,39 @@ function AdminHome() {
             </div>
           );
         })()}
-      </main>
+
+{
+  showNotifications && (
+    <div className="fixed inset-0 flex items-center justify-center z-[100] p-4 bg-black/40">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full border-2 border-green-200 max-h-[90vh] overflow-y-auto">
+        <h2 className="mb-6 text-green-900 text-2xl font-bold">Notifications</h2>
+        <div className="space-y-3 mb-6">
+          {notifications.length > 0 ? (
+            notifications.map((notif, idx) => (
+              <div key={idx} className={`p-4 rounded-lg border-2 ${notif.read ? 'bg-white border-gray-200' : 'bg-green-50 border-green-200'}`}>
+                <p className={`mb-1 font-semibold ${notif.read ? 'text-gray-700' : 'text-green-800'}`}>{notif.title}</p>
+                <p className={notif.read ? 'text-gray-600' : 'text-green-600'}>{notif.message}</p>
+                <p className={`mt-2 text-sm ${notif.read ? 'text-gray-400' : 'text-green-500'}`}>{notif.time}</p>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+              Aucune notification pour le moment.
+            </div>
+          )}
+        </div>
+        <button
+          onClick={() => setShowNotifications(false)}
+          className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
+        >
+          Fermer
+        </button>
+      </div>
     </div>
+  )
+}
+      </main >
+    </div >
   );
 }
 
