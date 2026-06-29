@@ -27,6 +27,7 @@ function Login() {
 
       const data = await res.json();
       localStorage.setItem('token', data.token);
+      localStorage.setItem('username', login);
 
       const payload = JSON.parse(atob(data.token.split('.')[1]));
       const groups = payload.groups || [];

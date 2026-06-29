@@ -35,6 +35,7 @@ public class Logger {
             try (FileWriter f = new FileWriter(log_file, true);
                 PrintWriter write = new PrintWriter(f)) {
                 write.println(log);
+                System.out.println(log);
                 return;
             } catch (IOException e) {
                 System.out.println(log);
@@ -51,6 +52,7 @@ public class Logger {
             try (FileWriter f = new FileWriter(error_file, true);
                 PrintWriter write = new PrintWriter(f)) {
                 write.println(log);
+                System.err.println(log);
                 return;
             } catch (IOException e) {
                 System.err.println(log);
