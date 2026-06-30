@@ -1,8 +1,12 @@
 package fr.epita.assistants.ping.presentation.rest;
 
+import fr.epita.assistants.ping.data.model.BenevoleModel;
 import fr.epita.assistants.ping.data.model.CreneauModel;
+import fr.epita.assistants.ping.data.model.NotificationModel;
 import fr.epita.assistants.ping.data.model.UserModel;
+import fr.epita.assistants.ping.data.repository.BenevoleRepository;
 import fr.epita.assistants.ping.data.repository.CreneauRepository;
+import fr.epita.assistants.ping.data.repository.NotificationRepository;
 import fr.epita.assistants.ping.data.repository.UserRepository;
 import fr.epita.assistants.ping.request.NewCreneauRequest;
 import fr.epita.assistants.ping.response.CreneauResponse;
@@ -13,16 +17,34 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import fr.epita.assistants.ping.utils.EmailUtils;
 import fr.epita.assistants.ping.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Path("/api/creneau")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CreneauResource {
+
+    private static final Map<String, String> POSTE_LABELS = Map.of(
+            "billetterie", "Billetterie",
+            "accueil", "Accueil",
+            "buvette", "Buvette",
+            "coin-enfant", "Coin Enfant",
+            "conference", "Conférence"
+    );
+
+    private static final Map<String, String> POSTE_WHATSAPP = Map.of(
+            "billetterie", "https://chat.whatsapp.com/F5NTtaQ94GW1pI5JDurCel?s=hd&p=i&mlu=3",
+            "accueil",     "https://chat.whatsapp.com/BWVZOnimG8r4F0dWCWORHh?s=hd&p=i&mlu=3",
+            "buvette",     "https://chat.whatsapp.com/KxHkqEZSSAd6M86VLER0ZK?s=hd&p=i&mlu=3",
+            "coin-enfant", "https://chat.whatsapp.com/IpcvOPKJEfI43cYiRaKKnG?s=hd&p=i&mlu=3",
+            "conference",  "https://chat.whatsapp.com/BavrIHxRqos55nuv75Cpp7?s=hd&p=i&mlu=3"
+    );
 
     @Inject
     CreneauRepository creneauRepository;
@@ -31,10 +53,20 @@ public class CreneauResource {
     UserRepository userRepository;
 
     @Inject
+    BenevoleRepository benevoleRepository;
+
+    @Inject
+    NotificationRepository notificationRepository;
+
+    @Inject
     JsonWebToken jwt;
 
     @Inject
     Logger logger;
+
+    private static String posteLabel(String poste) {
+        return POSTE_LABELS.getOrDefault(poste, poste);
+    }
 
     @GET
     @Path("/all")
@@ -117,6 +149,14 @@ public class CreneauResource {
 
         CreneauModel creneau = new CreneauModel(request.jour, request.heureDebut, request.heureFin, request.poste);
         creneauRepository.save(creneau);
+
+        String message = "Un nouveau créneau à la " + posteLabel(creneau.getPoste()) + " est disponible le "
+                + creneau.getJour() + " " + creneau.getHeureDebut() + "-" + creneau.getHeureFin();
+        for (BenevoleModel benevole : benevoleRepository.findAll()) {
+            notificationRepository.save(new NotificationModel(
+                    benevole.getUser(), "Nouveau créneau disponible", message, "NOUVEAU_CRENEAU"));
+        }
+
         logger.Log("POST /api/creneau, Id = " + jwt.getSubject() + ", jour = " + request.jour + ", poste = " + request.poste);
         return Response.ok(new CreneauResponse(creneau)).build();
     }
@@ -152,7 +192,77 @@ public class CreneauResource {
 
         creneau.setIsPris(true);
         creneau.setPrisPar(user);
+
+        String message = "Vous êtes bien inscrit au créneau " + creneau.getJour() + " "
+                + creneau.getHeureDebut() + "-" + creneau.getHeureFin() + " - " + posteLabel(creneau.getPoste());
+        notificationRepository.save(new NotificationModel(
+                user, "Confirmation d'inscription", message, "CONFIRMATION"));
+
+        BenevoleModel benevole = benevoleRepository.findById(userId);
+        if (benevole != null && benevole.getEmail() != null && !benevole.getEmail().isBlank()) {
+            try {
+                EmailUtils.sendAssignment(benevole.getEmail(), benevole.getNomComplet(),
+                        creneau.getJour(), creneau.getHeureDebut(), creneau.getHeureFin(),
+                        posteLabel(creneau.getPoste()), POSTE_WHATSAPP.getOrDefault(creneau.getPoste(), ""));
+                logger.Log("PUT /api/creneau/" + id + "/inscription, assignment email sent to " + benevole.getEmail());
+            } catch (Exception e) {
+                logger.ErrorLog("PUT /api/creneau/" + id + "/inscription, email failed: " + e.getMessage());
+            }
+        }
+
         logger.Log("PUT /api/creneau/" + id + "/inscription, Id = " + jwt.getSubject());
+        return Response.ok(new CreneauResponse(creneau)).build();
+    }
+
+    @PUT
+    @Path("/{id}/assign/{benevoleId}")
+    @Transactional
+    @RolesAllowed("admin")
+    public Response assigner(@PathParam("id") UUID id, @PathParam("benevoleId") UUID benevoleId) {
+        CreneauModel creneau = creneauRepository.findById(id);
+        if (creneau == null) {
+            logger.ErrorLog("PUT /api/creneau/" + id + "/assign/" + benevoleId + ", Id = " + jwt.getSubject() + ", creneau not found");
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"message\": \"Creneau not found\"}")
+                    .build();
+        }
+
+        if (creneau.getIsPris() != null && creneau.getIsPris()) {
+            logger.ErrorLog("PUT /api/creneau/" + id + "/assign/" + benevoleId + ", Id = " + jwt.getSubject() + ", creneau deja pris");
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("{\"message\": \"Ce creneau est deja pris\"}")
+                    .build();
+        }
+
+        UserModel user = userRepository.findById(benevoleId);
+        if (user == null) {
+            logger.ErrorLog("PUT /api/creneau/" + id + "/assign/" + benevoleId + ", Id = " + jwt.getSubject() + ", benevole not found");
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"message\": \"Benevole not found\"}")
+                    .build();
+        }
+
+        creneau.setIsPris(true);
+        creneau.setPrisPar(user);
+
+        String message = "Vous avez été assigné au créneau " + creneau.getJour() + " "
+                + creneau.getHeureDebut() + "-" + creneau.getHeureFin() + " - " + posteLabel(creneau.getPoste());
+        notificationRepository.save(new NotificationModel(
+                user, "Affectation à un créneau", message, "CONFIRMATION"));
+
+        BenevoleModel benevoleAssigne = benevoleRepository.findById(benevoleId);
+        if (benevoleAssigne != null && benevoleAssigne.getEmail() != null && !benevoleAssigne.getEmail().isBlank()) {
+            try {
+                EmailUtils.sendAssignment(benevoleAssigne.getEmail(), benevoleAssigne.getNomComplet(),
+                        creneau.getJour(), creneau.getHeureDebut(), creneau.getHeureFin(),
+                        posteLabel(creneau.getPoste()), POSTE_WHATSAPP.getOrDefault(creneau.getPoste(), ""));
+                logger.Log("PUT /api/creneau/" + id + "/assign/" + benevoleId + ", assignment email sent to " + benevoleAssigne.getEmail());
+            } catch (Exception e) {
+                logger.ErrorLog("PUT /api/creneau/" + id + "/assign/" + benevoleId + ", email failed: " + e.getMessage());
+            }
+        }
+
+        logger.Log("PUT /api/creneau/" + id + "/assign/" + benevoleId + ", Id = " + jwt.getSubject());
         return Response.ok(new CreneauResponse(creneau)).build();
     }
 
@@ -179,8 +289,23 @@ public class CreneauResource {
                     .build();
         }
 
+        UserModel quitte = creneau.getPrisPar();
+        BenevoleModel benevoleQuitte = benevoleRepository.findById(quitte.getId());
+        String nomQuitte = benevoleQuitte != null && benevoleQuitte.getNomComplet() != null
+                ? benevoleQuitte.getNomComplet() : quitte.getLogin();
+
         creneau.setIsPris(false);
         creneau.setPrisPar(null);
+
+        String message = nomQuitte + " a quitté le créneau " + creneau.getJour() + " "
+                + creneau.getHeureDebut() + "-" + creneau.getHeureFin() + " - " + posteLabel(creneau.getPoste());
+        for (UserModel admin : userRepository.findAll()) {
+            if (Boolean.TRUE.equals(admin.getIsAdmin())) {
+                notificationRepository.save(new NotificationModel(
+                        admin, "Désistement d'un créneau", message, "DESISTEMENT"));
+            }
+        }
+
         logger.Log("PUT /api/creneau/" + id + "/desinscription, Id = " + jwt.getSubject());
         return Response.ok(new CreneauResponse(creneau)).build();
     }

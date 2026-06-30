@@ -32,6 +32,8 @@ function UserDashboard() {
   const [selectedCreneau, setSelectedCreneau] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const token = localStorage.getItem('token');
 
@@ -43,6 +45,20 @@ function UserDashboard() {
       return null;
     }
   };
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const res = await fetch('/api/notification/me', {
+        headers: { 'Authorization': 'Bearer ' + token },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data);
+      }
+    } catch (e) {
+      console.error('Erreur chargement notifications', e);
+    }
+  }, [token]);
 
   const fetchCreneaux = useCallback(async () => {
     try {
@@ -96,7 +112,8 @@ function UserDashboard() {
     fetchCreneaux();
     fetchMesCreneaux();
     fetchBenevole();
-  }, [fetchCreneaux, fetchMesCreneaux, fetchBenevole]);
+    fetchNotifications();
+  }, [fetchCreneaux, fetchMesCreneaux, fetchBenevole, fetchNotifications]);
 
   useEffect(() => {
     let heures = 0;
@@ -247,6 +264,40 @@ function UserDashboard() {
 
   const getPoste = (id) => POSTES.find((p) => p.id === id);
 
+  const formatRelativeTime = (createdAt) => {
+    const diff = Math.floor((Date.now() - new Date(createdAt).getTime()) / 1000);
+    if (diff < 60) return "À l'instant";
+    if (diff < 3600) {
+      const m = Math.floor(diff / 60);
+      return `Il y a ${m} minute${m > 1 ? 's' : ''}`;
+    }
+    if (diff < 86400) {
+      const h = Math.floor(diff / 3600);
+      return `Il y a ${h} heure${h > 1 ? 's' : ''}`;
+    }
+    const d = Math.floor(diff / 86400);
+    return `Il y a ${d} jour${d > 1 ? 's' : ''}`;
+  };
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  const handleOpenNotifications = () => {
+    setShowNotifications(true);
+  };
+
+  const handleCloseNotifications = async () => {
+    setShowNotifications(false);
+    try {
+      await fetch('/api/notification/me/read-all', {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + token },
+      });
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    } catch (e) {
+      console.error('Erreur marquage notifications lues', e);
+    }
+  };
+
   const tabs = [
     { id: 'creneaux', label: "S'inscrire aux créneaux" },
     { id: 'calendrier', label: 'Mon calendrier' },
@@ -269,12 +320,12 @@ function UserDashboard() {
           </div>
         </div>
         <div className="header-right">
-          <button className="header-notif-btn">
+          <button className="header-notif-btn" onClick={handleOpenNotifications}>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="#4caf50">
               <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
             </svg>
             Notifications
-            <span className="notif-badge">3</span>
+            {unreadCount > 0 && <span className="notif-badge">{unreadCount}</span>}
           </button>
           <button className="header-logout-btn" onClick={handleLogout}>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="#555">
@@ -286,6 +337,27 @@ function UserDashboard() {
       </header>
 
       <div className="user-accent-bar" />
+
+      {showNotifications && (
+        <div className="notif-overlay" onClick={handleCloseNotifications}>
+          <div className="notif-modal" onClick={(e) => e.stopPropagation()}>
+            <h2 className="notif-modal-title">Notifications</h2>
+            <div className="notif-list">
+              {notifications.length === 0 && (
+                <p className="notif-empty">Aucune notification.</p>
+              )}
+              {notifications.map((notif) => (
+                <div key={notif.id} className="notif-item">
+                  <p className="notif-item-title">{notif.title}</p>
+                  <p className="notif-item-message">{notif.message}</p>
+                  <p className="notif-item-time">{formatRelativeTime(notif.createdAt)}</p>
+                </div>
+              ))}
+            </div>
+            <button className="notif-close-btn" onClick={handleCloseNotifications}>Fermer</button>
+          </div>
+        </div>
+      )}
 
       <main className="user-main">
         <nav className="user-tabs">
