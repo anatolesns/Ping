@@ -59,7 +59,11 @@ public class AuthService {
 
     public String generateToken(UserModel user) {
         Set<String> roles = new HashSet<>();
-        if (user.getIsAdmin() != null && user.getIsAdmin()) {
+        String role = user.getRole();
+        if (role != null && role.startsWith("manager_")) {
+            roles.add("manager");
+            roles.add(role);
+        } else if (user.getIsAdmin() != null && user.getIsAdmin()) {
             roles.add("admin");
         } else {
             roles.add("user");

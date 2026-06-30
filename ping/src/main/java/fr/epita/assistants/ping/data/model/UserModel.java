@@ -36,6 +36,9 @@ public class UserModel {
     @Column(name = "is_admin")
     private Boolean isAdmin;
 
+    @Column(name = "role")
+    private String role;
+
 
     public UserModel() {}
 
@@ -53,6 +56,8 @@ public class UserModel {
     public String getDisplayName() { return displayName; }
     public String getAvatar() { return avatar; }
     public Boolean getIsAdmin() { return isAdmin; }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 }
 
 

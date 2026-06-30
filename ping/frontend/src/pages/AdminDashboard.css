@@ -1,60 +1,1048 @@
-.admin-page {
+.mgr-page {
   min-height: 100vh;
+  background-color: #e3f6e8;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header */
+.mgr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  background: white;
+}
+
+.mgr-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mgr-logo {
+  width: 44px;
+  height: 44px;
+  background-color: #15803d;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #2e7d32;
 }
 
-.admin-card {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 60px 50px;
-  text-align: center;
+.mgr-header-info {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  max-width: 450px;
-  width: 100%;
 }
 
-.admin-icon {
-  width: 90px;
-  height: 90px;
-  background-color: rgba(255, 255, 255, 0.2);
+.mgr-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1b3a1f;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.mgr-username {
+  font-size: 13px;
+  color: #15803d;
+  font-weight: 600;
+}
+
+.mgr-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mgr-notif-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: white;
+  border: 2px solid #15803d;
+  border-radius: 20px;
+  color: #15803d;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+}
+
+.mgr-notif-btn:hover {
+  background: #f1f8e9;
+}
+
+.mgr-notif-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #c62828;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 24px;
 }
 
-.admin-title {
-  color: white;
-  font-size: 28px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
+.mgr-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 20px;
+  color: #555;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
 }
 
-.admin-subtitle {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 16px;
-  margin: 0 0 40px 0;
+.mgr-logout-btn:hover {
+  background: #f5f5f5;
+  border-color: #bbb;
 }
 
-.admin-logout {
-  padding: 12px 32px;
-  background-color: white;
-  color: #2e7d32;
-  border: none;
-  border-radius: 8px;
+/* Content */
+.mgr-content-wrapper {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 28px 32px;
+}
+
+.mgr-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* Tabs */
+.mgr-tabs {
+  display: flex;
+  gap: 14px;
+  padding: 24px 28px;
+}
+
+.mgr-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  background: white;
+  color: #555;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
 }
 
-.admin-logout:hover {
-  background-color: #e8f5e9;
+.mgr-tab-poste:hover {
+  border-color: #7c3aed;
+  color: #7c3aed;
+}
+
+.mgr-tab-poste.mgr-tab-active {
+  background: #7c3aed;
+  color: white;
+  border-color: #7c3aed;
+}
+
+.mgr-tab-poste.mgr-tab-active:hover {
+  background: #6d28d9;
+  color: white;
+}
+
+.mgr-tab-benevole:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.mgr-tab-benevole.mgr-tab-active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.mgr-tab-benevole.mgr-tab-active:hover {
+  background: #1d4ed8;
+  color: white;
+}
+
+.mgr-tab-gestion:hover {
+  border-color: #0f766e;
+  color: #0f766e;
+}
+
+.mgr-tab-gestion.mgr-tab-active {
+  background: #0f766e;
+  color: white;
+  border-color: #0f766e;
+}
+
+.mgr-tab-gestion.mgr-tab-active:hover {
+  background: #134e4a;
+  color: white;
+}
+
+.mgr-card-divider {
+  height: 1px;
+  background: #eef2ee;
+}
+
+.mgr-card-body {
+  padding: 28px;
+}
+
+/* Section title */
+.mgr-section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1b3a1f;
+  margin: 0 0 20px 0;
+}
+
+/* Filtre bar */
+.mgr-filtre-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.mgr-filtre-btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 20px;
+  background: #dcf2e3;
+  color: #1b5e20;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mgr-filtre-btn:hover {
+  background: #c8e6c9;
+}
+
+.mgr-filtre-active {
+  background: #1e293b;
+  color: white;
+}
+
+.mgr-filtre-active:hover {
+  background: #0f172a;
+  color: white;
+}
+
+/* Table */
+.mgr-table-wrapper {
+  overflow-x: auto;
+}
+
+.mgr-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.mgr-table thead tr {
+  background: #15803d;
+}
+
+.mgr-table thead th {
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 14px 16px;
+  text-align: center;
+}
+
+.mgr-table tbody td {
+  vertical-align: top;
+  padding: 10px;
+  background: #f1faf3;
+  border: 1px solid #d9efe0;
+}
+
+.mgr-horaire-cell {
+  font-weight: 600;
+  color: #1a1a1a;
+  background: white !important;
+  text-align: left !important;
+  white-space: nowrap;
+  padding: 16px !important;
+}
+
+.mgr-day-cell {
+  display: table-cell;
+}
+
+/* Poste cards inside a day cell */
+.mgr-poste-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.mgr-poste-card:last-child {
+  margin-bottom: 0;
+}
+
+.mgr-poste-filled {
+  border: 2px solid #43a047;
+}
+
+.mgr-poste-card-trigger {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mgr-poste-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+
+.mgr-poste-badge {
+  background: #15803d;
+  color: white;
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.mgr-poste-count {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+}
+
+.mgr-vide-text {
+  display: block;
+  color: #c62828;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mgr-benevole-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 3px 0;
+}
+
+.mgr-benevole-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #15803d;
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mgr-remove-btn {
+  background: none;
+  border: none;
+  color: #c62828;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0 2px;
+  flex-shrink: 0;
+}
+
+.mgr-remove-btn:hover {
+  color: #b71c1c;
+}
+
+/* Placeholder */
+.mgr-placeholder-section {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.mgr-placeholder-text {
+  color: #666666;
+  font-size: 16px;
+}
+
+/* Planning par bénévole */
+.mgr-benevole-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mgr-benevole-card {
+  background: white;
+  border: 2px solid #43a047;
+  border-radius: 14px;
+  padding: 22px 26px;
+}
+
+.mgr-benevole-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.mgr-benevole-card-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+}
+
+.mgr-benevole-card-subtitle {
+  font-size: 14px;
+  color: #15803d;
+  font-weight: 600;
+}
+
+.mgr-info-btn {
+  padding: 9px 18px;
+  background: #15803d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mgr-info-btn:hover {
+  background: #166534;
+}
+
+.mgr-info-panel {
+  background: #f1faf3;
+  border: 1px solid #d9efe0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin: 14px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.mgr-info-panel p {
+  margin: 4px 0;
+}
+
+.mgr-creneaux-label {
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+  margin: 16px 0 10px 0;
+}
+
+.mgr-creneaux-assign-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mgr-creneau-assign-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f1faf3;
+  border: 1px solid #d9efe0;
+  border-radius: 10px;
+  padding: 12px 18px;
+}
+
+.mgr-creneau-jour-pill {
+  background: #15803d;
+  color: white;
+  padding: 4px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.mgr-creneau-assign-horaire {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.mgr-creneau-assign-poste {
+  margin-left: auto;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Gestion des bénévoles */
+.mgr-gb-form-card {
+  background: white;
+  border: 2px solid #43a047;
+  border-radius: 14px;
+  padding: 26px 30px;
+  margin-bottom: 32px;
+}
+
+.mgr-gb-error {
+  background: #fdecea;
+  color: #c0392b;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.mgr-gb-field {
+  margin-bottom: 20px;
+}
+
+.mgr-gb-row {
+  display: flex;
+  gap: 24px;
+}
+
+.mgr-gb-row .mgr-gb-field {
+  flex: 1;
+}
+
+.mgr-gb-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1b3a1f;
+  margin-bottom: 8px;
+}
+
+.mgr-gb-input,
+.mgr-gb-select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #c8e6c9;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #333;
+  background: white;
+  box-sizing: border-box;
+}
+
+.mgr-gb-input:focus,
+.mgr-gb-select:focus {
+  outline: none;
+  border-color: #43a047;
+}
+
+.mgr-gb-dispo-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.mgr-gb-dispo-row .mgr-gb-select {
+  flex: 1;
+}
+
+.mgr-gb-add-btn {
+  padding: 0 22px;
+  background: #15803d;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mgr-gb-add-btn:hover {
+  background: #166534;
+}
+
+.mgr-gb-add-btn:disabled {
+  background: #c8e6c9;
+  cursor: not-allowed;
+}
+
+.mgr-gb-dispo-empty {
+  color: #15803d;
+  font-size: 14px;
+  margin: 0;
+}
+
+.mgr-gb-dispo-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mgr-gb-dispo-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #e8f5e9;
+  color: #1b5e20;
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mgr-gb-dispo-chip button {
+  background: none;
+  border: none;
+  color: #c62828;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.mgr-gb-submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: #15803d;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.mgr-gb-submit-btn:hover {
+  background: #166534;
+}
+
+.mgr-gb-submit-btn:disabled {
+  background: #a5d6a7;
+  cursor: not-allowed;
+}
+
+.mgr-gb-cancel-btn {
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: none;
+  color: #555;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 8px;
+  text-decoration: underline;
+}
+
+.mgr-gb-list-title {
+  margin-top: 0;
+}
+
+.mgr-gb-card {
+  background: white;
+  border: 2px solid #43a047;
+  border-radius: 14px;
+  padding: 20px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.mgr-gb-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mgr-gb-card-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.mgr-gb-edit-btn {
+  padding: 10px 18px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mgr-gb-edit-btn:hover {
+  background: #1d4ed8;
+}
+
+.mgr-gb-delete-btn {
+  padding: 10px 18px;
+  background: #c62828;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mgr-gb-delete-btn:hover {
+  background: #b71c1c;
+}
+
+/* Notifications modal */
+.mgr-notif-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 90px;
+  z-index: 1000;
+}
+
+.mgr-notif-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+}
+
+.mgr-notif-modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 20px 0;
+}
+
+.mgr-notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.mgr-notif-item {
+  background: #f1fbf6;
+  border: 1px solid #c7f0db;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.mgr-notif-item-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 6px 0;
+}
+
+.mgr-notif-item-message {
+  font-size: 14px;
+  color: #15803d;
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+}
+
+.mgr-notif-item-time {
+  font-size: 12px;
+  color: #15803d;
+  margin: 0;
+}
+
+.mgr-notif-empty {
+  color: #666666;
+  font-size: 15px;
+  text-align: center;
+  padding: 20px;
+}
+
+.mgr-notif-close-btn {
+  width: 100%;
+  padding: 14px;
+  background: #15803d;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.mgr-notif-close-btn:hover {
+  background: #166534;
+}
+
+/* Assign benevole modal */
+.mgr-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.mgr-modal {
+  background: white;
+  border: 2px solid #a5d6a7;
+  border-radius: 16px;
+  padding: 28px 32px;
+  width: 420px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.mgr-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 18px;
+}
+
+.mgr-modal-creneau-info {
+  background: #f1faf3;
+  border: 1px solid #d9efe0;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+}
+
+.mgr-modal-horaire {
+  margin-left: 10px;
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.mgr-modal-poste {
+  margin: 8px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.mgr-modal-empty {
+  text-align: center;
+  color: #15803d;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 16px 0;
+}
+
+.mgr-modal-benevole-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.mgr-modal-benevole-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.mgr-modal-benevole-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.mgr-modal-assign-btn {
+  padding: 6px 14px;
+  background: #15803d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mgr-modal-assign-btn:hover {
+  background: #166534;
+}
+
+.mgr-modal-assign-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mgr-modal-cancel-btn {
+  width: 100%;
+  padding: 12px;
+  background: #15803d;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mgr-modal-cancel-btn:hover {
+  background: #166534;
+}
+
+.mgr-modal-cancel-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .mgr-header {
+    padding: 14px 18px;
+  }
+
+  .mgr-content-wrapper {
+    padding: 20px 16px;
+  }
+
+  .mgr-card-body {
+    padding: 20px;
+  }
+
+  .mgr-tabs {
+    padding: 18px 18px 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .mgr-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .mgr-header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .mgr-notif-btn,
+  .mgr-logout-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .mgr-tabs {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .mgr-tab-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .mgr-card-body {
+    padding: 16px;
+  }
+
+  .mgr-table thead th,
+  .mgr-table tbody td {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .mgr-gb-form-card,
+  .mgr-gb-card {
+    padding: 18px;
+  }
+
+  .mgr-gb-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .mgr-gb-dispo-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mgr-gb-add-btn {
+    padding: 12px;
+  }
+
+  .mgr-gb-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mgr-gb-card-actions {
+    width: 100%;
+  }
+
+  .mgr-gb-edit-btn,
+  .mgr-gb-delete-btn {
+    flex: 1;
+  }
+
+  .mgr-benevole-card {
+    padding: 18px 20px;
+  }
+
+  .mgr-benevole-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .mgr-creneau-assign-row {
+    flex-wrap: wrap;
+  }
+
+  .mgr-creneau-assign-poste {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .mgr-modal,
+  .mgr-notif-modal {
+    padding: 22px 18px;
+  }
 }

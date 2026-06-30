@@ -1,60 +1,777 @@
 .user-page {
   min-height: 100vh;
+  background-color: #e8f5e9;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header */
+.user-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  background: white;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-logo {
+  width: 44px;
+  height: 44px;
+  background-color: #15803d;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #616161;
 }
 
-.user-card {
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 60px 50px;
-  text-align: center;
+.header-info {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  max-width: 450px;
-  width: 100%;
 }
 
-.user-icon {
-  width: 90px;
-  height: 90px;
-  background-color: rgba(255, 255, 255, 0.2);
+.header-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.header-username {
+  font-size: 13px;
+  color: #666666;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-notif-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: white;
+  border: 2px solid #15803d;
+  border-radius: 20px;
+  color: #15803d;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+}
+
+.header-notif-btn:hover {
+  background: #f1f8e9;
+}
+
+.notif-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #c62828;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.header-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 20px;
+  color: #555;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.header-logout-btn:hover {
+  background: #f5f5f5;
+  border-color: #bbb;
+}
+
+/* Accent bar */
+.user-accent-bar {
+  height: 4px;
+  background: #43a047;
+}
+
+/* Main */
+.user-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+/* Tabs */
+.user-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tab-btn {
+  padding: 12px 24px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  color: #555;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  border-color: #15803d;
+  color: #15803d;
+}
+
+.tab-active {
+  background: #15803d;
+  color: white;
+  border-color: #15803d;
+}
+
+.tab-active:hover {
+  background: #166534;
+  color: white;
+}
+
+/* Section */
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 20px 0;
+}
+
+/* Filtre bar */
+.filtre-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-bottom: 24px;
 }
 
-.user-title {
+.filtre-btn {
+  padding: 8px 18px;
+  border: 2px solid #ddd;
+  border-radius: 20px;
+  background: white;
+  color: #555;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filtre-btn:hover {
+  border-color: #15803d;
+  color: #15803d;
+}
+
+.filtre-active {
+  background: #1a1a1a;
   color: white;
-  font-size: 28px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
+  border-color: #1a1a1a;
 }
 
-.user-subtitle {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 16px;
-  margin: 0 0 40px 0;
+.filtre-active:hover {
+  background: #333;
+  color: white;
+  border-color: #333;
 }
 
-.user-logout {
-  padding: 12px 32px;
-  background-color: white;
-  color: #616161;
+/* Créneau cards */
+.creneaux-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.creneau-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 24px 28px;
+}
+
+.creneau-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.creneau-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.jour-badge {
+  background: #15803d;
+  color: white;
+  padding: 4px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.creneau-horaire {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.poste-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #15803d;
+  color: white;
+  padding: 4px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.inscrire-btn {
+  padding: 12px 28px;
+  background: #15803d;
+  color: white;
   border: none;
   border-radius: 8px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background 0.2s;
+  white-space: nowrap;
 }
 
-.user-logout:hover {
-  background-color: #eeeeee;
+.inscrire-btn:hover {
+  background: #166534;
+}
+
+.inscrire-btn.inscrit {
+  background: #e8f5e9;
+  color: #1b5e20;
+  border: 2px solid #1b5e20;
+}
+
+.inscrire-btn.inscrit:hover {
+  background: #c8e6c9;
+}
+
+.inscrire-btn.indisponible {
+  background: #ffebee;
+  color: #c62828;
+  border: 2px solid #c62828;
+  cursor: not-allowed;
+}
+
+.inscrire-btn.indisponible:hover {
+  background: #ffcdd2;
+}
+
+/* Disponibilités */
+.dispo-section {
+  max-width: 1200px;
+}
+
+/* Titre principal de la section */
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 28px;
+}
+
+.dispo-subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 28px 0 16px 0;
+}
+
+.dispo-add-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.dispo-select {
+  flex: 1;
+  padding: 62px 22px;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  font-size: 17px;
+  color: #1a1a1a;
+  background: #f8faf8;
+  appearance: auto;
+  cursor: pointer;
+  outline: none;
+  min-height: 150px;
+}
+
+.dispo-select:focus {
+  border-color: #43a047;
+}
+
+.dispo-add-btn {
+  padding: 14px 32px;
+  background: #15803d; /* Vert plus vif */
+  color: white;
+  border: none;
+  border-radius: 8px; /* Arrondi ajusté à 8px */
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.dispo-add-btn:hover {
+  background: #166534;
+}
+
+.dispo-add-btn:disabled {
+  background: #15803d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.dispo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dispo-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f1fbf6; /* Vert très clair/pastel */
+  border: 1px solid #c7f0db; /* Bordure verte très douce */
+  border-radius: 8px; /* Arrondi ajusté */
+  padding: 16px 24px;
+}
+
+.dispo-card-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.dispo-jour-badge {
+  background: #15803d; /* Vert vif assorti */
+  color: white;
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dispo-horaire {
+  font-size: 16px;
+  font-weight: 600;
+  color: #15803d; /* Texte vert comme sur la capture */
+}
+
+.dispo-retirer-btn {
+  padding: 10px 24px;
+  background: #c62828; /* Rouge plus vif */
+  color: white;
+  border: none;
+  border-radius: 8px; /* Arrondi ajusté */
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dispo-retirer-btn:hover {
+  background: #b71c1c;
+}
+
+.dispo-empty {
+  color: #666666;
+  font-size: 15px;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Calendrier table */
+.calendrier-section {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+}
+
+.calendrier-table-wrapper {
+  overflow-x: auto;
+}
+
+.calendrier-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.calendrier-table thead tr {
+  background: #15803d;
+}
+
+.calendrier-table thead th {
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 14px 20px;
+  text-align: center;
+}
+
+.calendrier-table tbody td {
+  padding: 16px 20px;
+  text-align: center;
+  border-bottom: 1px solid #e8e8e8;
+  font-size: 14px;
+  color: #666666;
+}
+
+.calendrier-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.horaire-cell {
+  font-weight: 600;
+  color: #1a1a1a !important;
+  background: #e8f5e9;
+  text-align: left !important;
+  white-space: nowrap;
+}
+
+.cell-inscrit {
+  background: #c8e6c9;
+}
+
+.cell-poste-badge {
+  display: inline-block;
+  background: #15803d;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cell-vide {
+  color: #666666;
+}
+
+/* Informations section */
+.info-section {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 750px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  font-size: 15px;
+  color: #333;
+  background: white;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: #43a047;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.resume-box {
+  background: #e8f5e9;
+  border: 1px solid #c8e6c9;
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin: 28px 0;
+}
+
+.resume-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1b5e20;
+  margin: 0 0 12px 0;
+}
+
+.resume-line {
+  font-size: 15px;
+  color: #1b5e20;
+  margin: 6px 0;
+}
+
+.save-button {
+  width: 100%;
+  padding: 16px;
+  background: #15803d;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.save-button:hover {
+  background: #166534;
+}
+
+.save-button:disabled {
+  background: #a5d6a7;
+  cursor: not-allowed;
+}
+
+.save-message {
+  text-align: center;
+  font-size: 14px;
+  color: #15803d;
+  margin-bottom: 12px;
+}
+
+/* Notifications modal */
+.notif-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 90px;
+  z-index: 1000;
+}
+
+.notif-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+}
+
+.notif-modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 20px 0;
+}
+
+.notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.notif-item {
+  background: #f1fbf6;
+  border: 1px solid #c7f0db;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.notif-item-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 6px 0;
+}
+
+.notif-item-message {
+  font-size: 14px;
+  color: #1b5e20;
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+}
+
+.notif-item-time {
+  font-size: 12px;
+  color: #15803d;
+  margin: 0;
+}
+
+.notif-empty {
+  color: #666666;
+  font-size: 15px;
+  text-align: center;
+  padding: 20px;
+}
+
+.notif-close-btn {
+  width: 100%;
+  padding: 14px;
+  background: #15803d;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.notif-close-btn:hover {
+  background: #166534;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .user-header {
+    padding: 14px 18px;
+  }
+
+  .user-main {
+    padding: 20px 16px;
+  }
+
+  .calendrier-section {
+    padding: 20px;
+  }
+
+  .info-section {
+    padding: 28px;
+  }
+}
+
+@media (max-width: 640px) {
+  .user-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .header-notif-btn,
+  .header-logout-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .user-tabs {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tab-btn {
+    flex: 1 1 calc(50% - 8px);
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .creneau-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 18px 20px;
+  }
+
+  .inscrire-btn {
+    width: 100%;
+  }
+
+  .dispo-add-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .dispo-select {
+    padding: 14px 16px;
+    min-height: unset;
+  }
+
+  .dispo-add-btn {
+    padding: 14px;
+  }
+
+  .dispo-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px 18px;
+  }
+
+  .dispo-retirer-btn {
+    width: 100%;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .info-section {
+    padding: 22px 18px;
+  }
+
+  .calendrier-section {
+    padding: 16px;
+  }
+
+  .notif-modal {
+    padding: 22px 18px;
+  }
 }

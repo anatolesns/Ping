@@ -11,4 +11,5 @@ public class NewUserRequest {
     public String login;
     public String password;
     public Boolean isAdmin;
+    public String role;
 }

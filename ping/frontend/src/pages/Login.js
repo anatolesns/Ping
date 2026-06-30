@@ -27,12 +27,15 @@ function Login() {
 
       const data = await res.json();
       localStorage.setItem('token', data.token);
+      localStorage.setItem('username', login);
 
       const payload = JSON.parse(atob(data.token.split('.')[1]));
       const groups = payload.groups || [];
 
       if (groups.includes('admin')) {
         navigate('/admin');
+      } else if (groups.includes('manager')) {
+        navigate('/manager');
       } else {
         navigate('/home');
       }
