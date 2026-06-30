@@ -21,8 +21,27 @@ const TABS = [
 
 function AdminDashboard() {
   const navigate = useNavigate();
+
+  const token = localStorage.getItem('token');
+  const username = localStorage.getItem('username') || 'manager';
+
+  const managerPoste = (() => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const groups = payload.groups || [];
+      const g = groups.find((gr) => gr.startsWith('manager_'));
+      return g ? g.replace('manager_', '') : null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const managerPosteLabel = managerPoste
+    ? (POSTES.find((p) => p.id === managerPoste)?.label || managerPoste)
+    : null;
+
   const [activeTab, setActiveTab] = useState('planning-poste');
-  const [filtrePoste, setFiltrePoste] = useState('tous');
+  const [filtrePoste, setFiltrePoste] = useState(managerPoste || 'tous');
   const [creneaux, setCreneaux] = useState([]);
   const [benevoles, setBenevoles] = useState([]);
   const [openInfoId, setOpenInfoId] = useState(null);
@@ -41,9 +60,6 @@ function AdminDashboard() {
   const [gbDispoCreneau, setGbDispoCreneau] = useState('');
   const [gbSaving, setGbSaving] = useState(false);
   const [gbError, setGbError] = useState('');
-
-  const token = localStorage.getItem('token');
-  const username = localStorage.getItem('username') || 'manager';
 
   const fetchCreneaux = useCallback(async () => {
     try {
@@ -383,7 +399,7 @@ function AdminDashboard() {
   const planningParBenevole = useMemo(() => {
     const groupes = {};
     creneaux
-      .filter((c) => c.isPris && c.prisParId)
+      .filter((c) => c.isPris && c.prisParId && (!managerPoste || c.poste === managerPoste))
       .forEach((c) => {
         if (!groupes[c.prisParId]) {
           groupes[c.prisParId] = {
@@ -423,7 +439,7 @@ function AdminDashboard() {
             </svg>
           </div>
           <div className="mgr-header-info">
-            <h1 className="mgr-title">Espace Manager</h1>
+            <h1 className="mgr-title">{managerPosteLabel ? `Manager ${managerPosteLabel}` : 'Espace Manager'}</h1>
             <span className="mgr-username">{username}</span>
           </div>
         </div>
@@ -447,7 +463,7 @@ function AdminDashboard() {
       <div className="mgr-content-wrapper">
         <div className="mgr-card">
           <nav className="mgr-tabs">
-            {TABS.map((tab) => (
+            {TABS.filter((tab) => !managerPoste || tab.id !== 'gestion-benevoles').map((tab) => (
               <button
                 key={tab.id}
                 className={`mgr-tab-btn ${tab.colorClass} ${activeTab === tab.id ? 'mgr-tab-active' : ''}`}
@@ -480,23 +496,25 @@ function AdminDashboard() {
               <section>
                 <h2 className="mgr-section-title">Calendrier de la Semaine</h2>
 
-                <div className="mgr-filtre-bar">
-                  <button
-                    className={`mgr-filtre-btn ${filtrePoste === 'tous' ? 'mgr-filtre-active' : ''}`}
-                    onClick={() => setFiltrePoste('tous')}
-                  >
-                    Tous les postes
-                  </button>
-                  {POSTES.map((poste) => (
+                {!managerPoste && (
+                  <div className="mgr-filtre-bar">
                     <button
-                      key={poste.id}
-                      className={`mgr-filtre-btn ${filtrePoste === poste.id ? 'mgr-filtre-active' : ''}`}
-                      onClick={() => setFiltrePoste(poste.id)}
+                      className={`mgr-filtre-btn ${filtrePoste === 'tous' ? 'mgr-filtre-active' : ''}`}
+                      onClick={() => setFiltrePoste('tous')}
                     >
-                      {poste.label}
+                      Tous les postes
                     </button>
-                  ))}
-                </div>
+                    {POSTES.map((poste) => (
+                      <button
+                        key={poste.id}
+                        className={`mgr-filtre-btn ${filtrePoste === poste.id ? 'mgr-filtre-active' : ''}`}
+                        onClick={() => setFiltrePoste(poste.id)}
+                      >
+                        {poste.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 <div className="mgr-table-wrapper">
                   <table className="mgr-table">
@@ -619,7 +637,7 @@ function AdminDashboard() {
               </section>
             )}
 
-            {activeTab === 'gestion-benevoles' && (
+            {activeTab === 'gestion-benevoles' && !managerPoste && (
               <section>
                 <div className="mgr-gb-form-card">
                   <h2 className="mgr-section-title">

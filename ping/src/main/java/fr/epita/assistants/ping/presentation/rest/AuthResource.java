@@ -42,7 +42,7 @@ public class AuthResource {
 
     @GET
     @Path("/all")
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin", "manager"})
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllUsers() {
         List<UserModel> all = userRepository.findAll();
@@ -64,7 +64,7 @@ public class AuthResource {
 
     @POST
     @Transactional
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin", "manager"})
     public Response createUser(NewUserRequest request) {
 
         if (request.login == null || request.password == null) {
@@ -103,10 +103,14 @@ public class AuthResource {
 
         if (request.isAdmin != null && request.isAdmin) {
             admin = true;
-            
         }
 
         UserModel user = new UserModel(request.login, password, Name, null, admin);
+
+        if (request.role != null && !request.role.isBlank()) {
+            user.setRole(request.role);
+        }
+
         userRepository.save(user);
         logger.Log("POST /api/user , Id = " + jwt.getSubject() + " , login = " + request.login + " , isAdmin = " + admin);
         return Response.ok(new UserResponse(user)).build();
@@ -248,7 +252,7 @@ public class AuthResource {
     @DELETE
     @Path("/{id}")
     @Transactional
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin", "manager"})
     public Response deleteUser(@PathParam("id") UUID id) {
         UserModel user = userRepository.findById(id);
         if (user == null) {

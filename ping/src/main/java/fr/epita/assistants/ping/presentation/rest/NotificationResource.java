@@ -32,7 +32,7 @@ public class NotificationResource {
 
     @GET
     @Path("/me")
-    @RolesAllowed({"user", "admin"})
+    @RolesAllowed({"user", "admin", "manager"})
     public Response getMyNotifications() {
         UUID userId = UUID.fromString(jwt.getSubject());
         List<NotificationModel> notifications = notificationRepository.findByUserId(userId);
@@ -46,7 +46,7 @@ public class NotificationResource {
 
     @GET
     @Path("/me/unread-count")
-    @RolesAllowed({"user", "admin"})
+    @RolesAllowed({"user", "admin", "manager"})
     public Response getUnreadCount() {
         UUID userId = UUID.fromString(jwt.getSubject());
         long count = notificationRepository.countUnreadByUserId(userId);
@@ -57,7 +57,7 @@ public class NotificationResource {
     @PUT
     @Path("/me/read-all")
     @Transactional
-    @RolesAllowed({"user", "admin"})
+    @RolesAllowed({"user", "admin", "manager"})
     public Response markAllAsRead() {
         UUID userId = UUID.fromString(jwt.getSubject());
         notificationRepository.markAllAsReadForUser(userId);

@@ -34,6 +34,8 @@ function Login() {
 
       if (groups.includes('admin')) {
         navigate('/admin');
+      } else if (groups.includes('manager')) {
+        navigate('/manager');
       } else {
         navigate('/home');
       }

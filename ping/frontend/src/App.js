@@ -18,6 +18,21 @@ function ProtectedRoute({ children, role }) {
   return children;
 }
 
+function ManagerRoute({ children }) {
+  const token = localStorage.getItem('token');
+  if (!token) return <Navigate to="/login" />;
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const groups = payload.groups || [];
+    if (!groups.includes('manager')) return <Navigate to="/login" />;
+  } catch {
+    return <Navigate to="/login" />;
+  }
+
+  return children;
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -37,6 +52,14 @@ function App() {
             <ProtectedRoute role="user">
               <UserDashboard />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/manager"
+          element={
+            <ManagerRoute>
+              <AdminDashboard />
+            </ManagerRoute>
           }
         />
         <Route path="*" element={<Navigate to="/login" />} />

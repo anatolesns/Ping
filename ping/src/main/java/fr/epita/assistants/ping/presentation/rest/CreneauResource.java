@@ -70,7 +70,7 @@ public class CreneauResource {
 
     @GET
     @Path("/all")
-    @RolesAllowed({"user", "admin"})
+    @RolesAllowed({"user", "admin", "manager"})
     public Response getAllCreneaux() {
         List<CreneauModel> all = creneauRepository.findAll();
         List<CreneauResponse> res = new ArrayList<>();
@@ -138,7 +138,7 @@ public class CreneauResource {
 
     @POST
     @Transactional
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin", "manager"})
     public Response createCreneau(NewCreneauRequest request) {
         if (request.jour == null || request.heureDebut == null || request.heureFin == null || request.poste == null) {
             logger.ErrorLog("POST /api/creneau, Id = " + jwt.getSubject() + ", missing required fields");
@@ -217,7 +217,7 @@ public class CreneauResource {
     @PUT
     @Path("/{id}/assign/{benevoleId}")
     @Transactional
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin", "manager"})
     public Response assigner(@PathParam("id") UUID id, @PathParam("benevoleId") UUID benevoleId) {
         CreneauModel creneau = creneauRepository.findById(id);
         if (creneau == null) {
@@ -269,7 +269,7 @@ public class CreneauResource {
     @PUT
     @Path("/{id}/desinscription")
     @Transactional
-    @RolesAllowed({"user", "admin"})
+    @RolesAllowed({"user", "admin", "manager"})
     public Response desinscrire(@PathParam("id") UUID id) {
         CreneauModel creneau = creneauRepository.findById(id);
         if (creneau == null) {
@@ -280,7 +280,7 @@ public class CreneauResource {
         }
 
         UUID userId = UUID.fromString(jwt.getSubject());
-        boolean isAdmin = jwt.getGroups().contains("admin");
+        boolean isAdmin = jwt.getGroups().contains("admin") || jwt.getGroups().contains("manager");
 
         if (creneau.getPrisPar() == null || (!isAdmin && !creneau.getPrisPar().getId().equals(userId))) {
             logger.ErrorLog("PUT /api/creneau/" + id + "/desinscription, Id = " + jwt.getSubject() + ", forbidden");
@@ -313,7 +313,7 @@ public class CreneauResource {
     @DELETE
     @Path("/{id}")
     @Transactional
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin", "manager"})
     public Response deleteCreneau(@PathParam("id") UUID id) {
         CreneauModel creneau = creneauRepository.findById(id);
         if (creneau == null) {

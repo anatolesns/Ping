@@ -43,6 +43,12 @@ public class DataSeeder {
                 benevoleRepository.save(benevoleProfile);
             }
 
+            seedManager(userRepository, "manager.buvette",      "buvette",      "Manager Buvette",      "manager_buvette");
+            seedManager(userRepository, "manager.billetterie",   "billetterie",  "Manager Billetterie",  "manager_billetterie");
+            seedManager(userRepository, "manager.accueil",       "accueil",      "Manager Accueil",      "manager_accueil");
+            seedManager(userRepository, "manager.coinenfant",    "coinenfant",   "Manager Coin Enfant",  "manager_coin-enfant");
+            seedManager(userRepository, "manager.conference",    "conference",   "Manager Conference",   "manager_conference");
+
             if (creneauRepository.findAll().isEmpty()) {
                 creneauRepository.save(new CreneauModel("Vendredi", "08:00", "12:00", "billetterie"));
                 creneauRepository.save(new CreneauModel("Vendredi", "12:00", "16:00", "accueil"));
@@ -53,6 +59,18 @@ public class DataSeeder {
             }
         } catch (Exception e) {
             throw new RuntimeException("DB null", e);
+        }
+    }
+
+    private void seedManager(UserRepository repo, String login, String password, String displayName, String role) {
+        try {
+            if (!repo.loginExists(login)) {
+                UserModel manager = new UserModel(login, HashUtils.encrypt(password), displayName, null, false);
+                manager.setRole(role);
+                repo.save(manager);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Seed manager failed: " + login, e);
         }
     }
 }

@@ -56,7 +56,7 @@ public class BenevoleResource {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin", "manager"})
     public Response getBenevole(@PathParam("id") UUID id) {
         BenevoleModel benevole = benevoleRepository.findById(id);
         if (benevole == null) {
@@ -71,7 +71,7 @@ public class BenevoleResource {
 
     @GET
     @Path("/all")
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin", "manager"})
     public Response getAllBenevoles() {
         List<BenevoleModel> all = benevoleRepository.findAll();
         List<BenevoleResponse> res = new ArrayList<>();
@@ -94,7 +94,7 @@ public class BenevoleResource {
     @PUT
     @Path("/{id}")
     @Transactional
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin", "manager"})
     public Response updateBenevole(@PathParam("id") UUID id, UpdateBenevoleRequest request) {
         return upsertBenevole(id, request);
     }
@@ -102,7 +102,7 @@ public class BenevoleResource {
     @DELETE
     @Path("/{id}")
     @Transactional
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin", "manager"})
     public Response deleteBenevole(@PathParam("id") UUID id) {
         BenevoleModel benevole = benevoleRepository.findById(id);
         if (benevole == null) {
