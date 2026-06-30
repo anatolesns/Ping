@@ -672,3 +672,106 @@
 .notif-close-btn:hover {
   background: #166534;
 }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .user-header {
+    padding: 14px 18px;
+  }
+
+  .user-main {
+    padding: 20px 16px;
+  }
+
+  .calendrier-section {
+    padding: 20px;
+  }
+
+  .info-section {
+    padding: 28px;
+  }
+}
+
+@media (max-width: 640px) {
+  .user-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .header-notif-btn,
+  .header-logout-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .user-tabs {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tab-btn {
+    flex: 1 1 calc(50% - 8px);
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .creneau-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 18px 20px;
+  }
+
+  .inscrire-btn {
+    width: 100%;
+  }
+
+  .dispo-add-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .dispo-select {
+    padding: 14px 16px;
+    min-height: unset;
+  }
+
+  .dispo-add-btn {
+    padding: 14px;
+  }
+
+  .dispo-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px 18px;
+  }
+
+  .dispo-retirer-btn {
+    width: 100%;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .info-section {
+    padding: 22px 18px;
+  }
+
+  .calendrier-section {
+    padding: 16px;
+  }
+
+  .notif-modal {
+    padding: 22px 18px;
+  }
+}

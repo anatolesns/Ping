@@ -931,3 +931,118 @@
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .mgr-header {
+    padding: 14px 18px;
+  }
+
+  .mgr-content-wrapper {
+    padding: 20px 16px;
+  }
+
+  .mgr-card-body {
+    padding: 20px;
+  }
+
+  .mgr-tabs {
+    padding: 18px 18px 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .mgr-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .mgr-header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .mgr-notif-btn,
+  .mgr-logout-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .mgr-tabs {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .mgr-tab-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .mgr-card-body {
+    padding: 16px;
+  }
+
+  .mgr-table thead th,
+  .mgr-table tbody td {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .mgr-gb-form-card,
+  .mgr-gb-card {
+    padding: 18px;
+  }
+
+  .mgr-gb-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .mgr-gb-dispo-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mgr-gb-add-btn {
+    padding: 12px;
+  }
+
+  .mgr-gb-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mgr-gb-card-actions {
+    width: 100%;
+  }
+
+  .mgr-gb-edit-btn,
+  .mgr-gb-delete-btn {
+    flex: 1;
+  }
+
+  .mgr-benevole-card {
+    padding: 18px 20px;
+  }
+
+  .mgr-benevole-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .mgr-creneau-assign-row {
+    flex-wrap: wrap;
+  }
+
+  .mgr-creneau-assign-poste {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .mgr-modal,
+  .mgr-notif-modal {
+    padding: 22px 18px;
+  }
+}

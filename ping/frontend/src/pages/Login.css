@@ -4,6 +4,7 @@
   align-items: center;
   justify-content: center;
   background-color: #e8f5e9;
+  padding: 16px;
 }
 
 .login-card {
@@ -105,4 +106,14 @@
 
 .login-button:hover {
   background-color: #166534;
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 28px 22px;
+  }
+
+  .login-title {
+    font-size: 20px;
+  }
 }
