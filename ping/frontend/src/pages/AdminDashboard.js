@@ -445,7 +445,7 @@ function AdminDashboard() {
         </div>
         <div className="mgr-header-right">
           <button className="mgr-notif-btn" onClick={handleOpenNotifications}>
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="#4caf50">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="#15803d">
               <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
             </svg>
             Notifications
@@ -539,34 +539,40 @@ function AdminDashboard() {
                                   <div
                                     key={poste.id}
                                     className={`mgr-poste-card ${inscrits.length > 0 ? 'mgr-poste-filled' : ''}`}
-                                    onClick={() => openAssignModal(jour, horaire, poste.id)}
-                                    role="button"
-                                    tabIndex={0}
                                   >
-                                    <div className="mgr-poste-header">
-                                      <span className="mgr-poste-badge">{poste.label}</span>
-                                      <span className="mgr-poste-count">{inscrits.length}</span>
-                                    </div>
-                                    {inscrits.length === 0 ? (
-                                      <span className="mgr-vide-text">Vide</span>
-                                    ) : (
-                                      inscrits.map((c) => (
-                                        <div key={c.id} className="mgr-benevole-row">
-                                          <span className="mgr-benevole-name">
-                                            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                                              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                                            </svg>
-                                            {c.prisParLogin}
-                                          </span>
-                                          <button
-                                            className="mgr-remove-btn"
-                                            onClick={(e) => { e.stopPropagation(); handleRemove(c.id); }}
-                                            title="Retirer ce bénévole"
-                                          >
-                                            ✕
-                                          </button>
-                                        </div>
-                                      ))
+                                    <button
+                                      type="button"
+                                      className="mgr-poste-card-trigger"
+                                      onClick={() => openAssignModal(jour, horaire, poste.id)}
+                                    >
+                                      <span className="mgr-poste-header">
+                                        <span className="mgr-poste-badge">{poste.label}</span>
+                                        <span className="mgr-poste-count">{inscrits.length}</span>
+                                      </span>
+                                      {inscrits.length === 0 && (
+                                        <span className="mgr-vide-text">Vide</span>
+                                      )}
+                                    </button>
+                                    {inscrits.length > 0 && (
+                                      <div className="mgr-poste-benevoles">
+                                        {inscrits.map((c) => (
+                                          <div key={c.id} className="mgr-benevole-row">
+                                            <span className="mgr-benevole-name">
+                                              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                              </svg>
+                                              {c.prisParLogin}
+                                            </span>
+                                            <button
+                                              className="mgr-remove-btn"
+                                              onClick={() => handleRemove(c.id)}
+                                              title="Retirer ce bénévole"
+                                            >
+                                              ✕
+                                            </button>
+                                          </div>
+                                        ))}
+                                      </div>
                                     )}
                                   </div>
                                 );

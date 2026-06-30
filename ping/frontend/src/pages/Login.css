@@ -21,7 +21,7 @@
 .login-logo {
   width: 72px;
   height: 72px;
-  background-color: #4caf50;
+  background-color: #15803d;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -38,7 +38,7 @@
 
 .login-subtitle {
   font-size: 14px;
-  color: #888;
+  color: #666666;
   margin: 0 0 32px 0;
 }
 
@@ -79,17 +79,17 @@
 }
 
 .form-input::placeholder {
-  color: #bbb;
+  color: #666666;
 }
 
 .form-input:focus {
-  border-color: #4caf50;
+  border-color: #43a047;
 }
 
 .login-button {
   width: 100%;
   padding: 14px;
-  background-color: #4caf50;
+  background-color: #15803d;
   color: white;
   border: none;
   border-radius: 8px;
@@ -104,5 +104,5 @@
 }
 
 .login-button:hover {
-  background-color: #43a047;
+  background-color: #166534;
 }

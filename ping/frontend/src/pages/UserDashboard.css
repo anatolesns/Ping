@@ -22,7 +22,7 @@
 .header-logo {
   width: 44px;
   height: 44px;
-  background-color: #4caf50;
+  background-color: #15803d;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -44,7 +44,7 @@
 
 .header-username {
   font-size: 13px;
-  color: #888;
+  color: #666666;
 }
 
 .header-right {
@@ -59,9 +59,9 @@
   gap: 6px;
   padding: 8px 16px;
   background: white;
-  border: 2px solid #4caf50;
+  border: 2px solid #15803d;
   border-radius: 20px;
-  color: #4caf50;
+  color: #15803d;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -76,7 +76,7 @@
   position: absolute;
   top: -6px;
   right: -6px;
-  background: #f44336;
+  background: #c62828;
   color: white;
   font-size: 11px;
   font-weight: 700;
@@ -110,7 +110,7 @@
 /* Accent bar */
 .user-accent-bar {
   height: 4px;
-  background: #4caf50;
+  background: #43a047;
 }
 
 /* Main */
@@ -142,18 +142,18 @@
 }
 
 .tab-btn:hover {
-  border-color: #4caf50;
-  color: #4caf50;
+  border-color: #15803d;
+  color: #15803d;
 }
 
 .tab-active {
-  background: #4caf50;
+  background: #15803d;
   color: white;
-  border-color: #4caf50;
+  border-color: #15803d;
 }
 
 .tab-active:hover {
-  background: #43a047;
+  background: #166534;
   color: white;
 }
 
@@ -186,8 +186,8 @@
 }
 
 .filtre-btn:hover {
-  border-color: #4caf50;
-  color: #4caf50;
+  border-color: #15803d;
+  color: #15803d;
 }
 
 .filtre-active {
@@ -232,7 +232,7 @@
 }
 
 .jour-badge {
-  background: #4caf50;
+  background: #15803d;
   color: white;
   padding: 4px 14px;
   border-radius: 14px;
@@ -250,7 +250,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: #4caf50;
+  background: #15803d;
   color: white;
   padding: 4px 14px;
   border-radius: 14px;
@@ -261,7 +261,7 @@
 
 .inscrire-btn {
   padding: 12px 28px;
-  background: #4caf50;
+  background: #15803d;
   color: white;
   border: none;
   border-radius: 8px;
@@ -273,13 +273,13 @@
 }
 
 .inscrire-btn:hover {
-  background: #43a047;
+  background: #166534;
 }
 
 .inscrire-btn.inscrit {
   background: #e8f5e9;
-  color: #4caf50;
-  border: 2px solid #4caf50;
+  color: #1b5e20;
+  border: 2px solid #1b5e20;
 }
 
 .inscrire-btn.inscrit:hover {
@@ -288,8 +288,8 @@
 
 .inscrire-btn.indisponible {
   background: #ffebee;
-  color: #e53935;
-  border: 2px solid #e53935;
+  color: #c62828;
+  border: 2px solid #c62828;
   cursor: not-allowed;
 }
 
@@ -339,12 +339,12 @@
 }
 
 .dispo-select:focus {
-  border-color: #b5b5b5;
+  border-color: #43a047;
 }
 
 .dispo-add-btn {
   padding: 14px 32px;
-  background: #00b247; /* Vert plus vif */
+  background: #15803d; /* Vert plus vif */
   color: white;
   border: none;
   border-radius: 8px; /* Arrondi ajusté à 8px */
@@ -356,11 +356,11 @@
 }
 
 .dispo-add-btn:hover {
-  background: #00993d;
+  background: #166534;
 }
 
 .dispo-add-btn:disabled {
-  background: #00b247;
+  background: #15803d;
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -388,7 +388,7 @@
 }
 
 .dispo-jour-badge {
-  background: #00b247; /* Vert vif assorti */
+  background: #15803d; /* Vert vif assorti */
   color: white;
   padding: 6px 18px;
   border-radius: 20px;
@@ -399,12 +399,12 @@
 .dispo-horaire {
   font-size: 16px;
   font-weight: 600;
-  color: #00b247; /* Texte vert comme sur la capture */
+  color: #15803d; /* Texte vert comme sur la capture */
 }
 
 .dispo-retirer-btn {
   padding: 10px 24px;
-  background: #ff2d37; /* Rouge plus vif */
+  background: #c62828; /* Rouge plus vif */
   color: white;
   border: none;
   border-radius: 8px; /* Arrondi ajusté */
@@ -415,11 +415,11 @@
 }
 
 .dispo-retirer-btn:hover {
-  background: #e0242e;
+  background: #b71c1c;
 }
 
 .dispo-empty {
-  color: #888;
+  color: #666666;
   font-size: 15px;
   text-align: center;
   padding: 20px;
@@ -444,7 +444,7 @@
 }
 
 .calendrier-table thead tr {
-  background: #4caf50;
+  background: #15803d;
 }
 
 .calendrier-table thead th {
@@ -460,7 +460,7 @@
   text-align: center;
   border-bottom: 1px solid #e8e8e8;
   font-size: 14px;
-  color: #888;
+  color: #666666;
 }
 
 .calendrier-table tbody tr:last-child td {
@@ -481,7 +481,7 @@
 
 .cell-poste-badge {
   display: inline-block;
-  background: #4caf50;
+  background: #15803d;
   color: white;
   padding: 4px 12px;
   border-radius: 14px;
@@ -490,7 +490,7 @@
 }
 
 .cell-vide {
-  color: #ccc;
+  color: #666666;
 }
 
 /* Informations section */
@@ -528,7 +528,7 @@
 }
 
 .form-input:focus {
-  border-color: #4caf50;
+  border-color: #43a047;
 }
 
 .form-row {
@@ -547,20 +547,20 @@
 .resume-title {
   font-size: 18px;
   font-weight: 600;
-  color: #2e7d32;
+  color: #1b5e20;
   margin: 0 0 12px 0;
 }
 
 .resume-line {
   font-size: 15px;
-  color: #2e7d32;
+  color: #1b5e20;
   margin: 6px 0;
 }
 
 .save-button {
   width: 100%;
   padding: 16px;
-  background: #4caf50;
+  background: #15803d;
   color: white;
   border: none;
   border-radius: 12px;
@@ -571,7 +571,7 @@
 }
 
 .save-button:hover {
-  background: #43a047;
+  background: #166534;
 }
 
 .save-button:disabled {
@@ -582,7 +582,7 @@
 .save-message {
   text-align: center;
   font-size: 14px;
-  color: #4caf50;
+  color: #15803d;
   margin-bottom: 12px;
 }
 
@@ -638,19 +638,19 @@
 
 .notif-item-message {
   font-size: 14px;
-  color: #2e7d32;
+  color: #1b5e20;
   margin: 0 0 10px 0;
   line-height: 1.4;
 }
 
 .notif-item-time {
   font-size: 12px;
-  color: #66bb6a;
+  color: #15803d;
   margin: 0;
 }
 
 .notif-empty {
-  color: #888;
+  color: #666666;
   font-size: 15px;
   text-align: center;
   padding: 20px;
@@ -659,7 +659,7 @@
 .notif-close-btn {
   width: 100%;
   padding: 14px;
-  background: #4caf50;
+  background: #15803d;
   color: white;
   border: none;
   border-radius: 12px;
@@ -670,5 +670,5 @@
 }
 
 .notif-close-btn:hover {
-  background: #43a047;
+  background: #166534;
 }
