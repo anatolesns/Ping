@@ -10,6 +10,7 @@ import fr.epita.assistants.ping.data.repository.NotificationRepository;
 import fr.epita.assistants.ping.data.repository.UserRepository;
 import fr.epita.assistants.ping.request.NewCreneauRequest;
 import fr.epita.assistants.ping.response.CreneauResponse;
+import fr.epita.assistants.ping.service.CreneauService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -22,29 +23,12 @@ import fr.epita.assistants.ping.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Path("/api/creneau")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CreneauResource {
-
-    private static final Map<String, String> POSTE_LABELS = Map.of(
-            "billetterie", "Billetterie",
-            "accueil", "Accueil",
-            "buvette", "Buvette",
-            "coin-enfant", "Coin Enfant",
-            "conference", "Conférence"
-    );
-
-    private static final Map<String, String> POSTE_WHATSAPP = Map.of(
-            "billetterie", "https://chat.whatsapp.com/F5NTtaQ94GW1pI5JDurCel?s=hd&p=i&mlu=3",
-            "accueil",     "https://chat.whatsapp.com/BWVZOnimG8r4F0dWCWORHh?s=hd&p=i&mlu=3",
-            "buvette",     "https://chat.whatsapp.com/KxHkqEZSSAd6M86VLER0ZK?s=hd&p=i&mlu=3",
-            "coin-enfant", "https://chat.whatsapp.com/IpcvOPKJEfI43cYiRaKKnG?s=hd&p=i&mlu=3",
-            "conference",  "https://chat.whatsapp.com/BavrIHxRqos55nuv75Cpp7?s=hd&p=i&mlu=3"
-    );
 
     @Inject
     CreneauRepository creneauRepository;
@@ -64,9 +48,8 @@ public class CreneauResource {
     @Inject
     Logger logger;
 
-    private static String posteLabel(String poste) {
-        return POSTE_LABELS.getOrDefault(poste, poste);
-    }
+    @Inject
+    CreneauService creneauService;
 
     @GET
     @Path("/all")
@@ -150,7 +133,7 @@ public class CreneauResource {
         CreneauModel creneau = new CreneauModel(request.jour, request.heureDebut, request.heureFin, request.poste);
         creneauRepository.save(creneau);
 
-        String message = "Un nouveau créneau à la " + posteLabel(creneau.getPoste()) + " est disponible le "
+        String message = "Un nouveau créneau à la " + creneauService.posteLabel(creneau.getPoste()) + " est disponible le "
                 + creneau.getJour() + " " + creneau.getHeureDebut() + "-" + creneau.getHeureFin();
         for (BenevoleModel benevole : benevoleRepository.findAll()) {
             notificationRepository.save(new NotificationModel(
@@ -194,7 +177,7 @@ public class CreneauResource {
         creneau.setPrisPar(user);
 
         String message = "Vous êtes bien inscrit au créneau " + creneau.getJour() + " "
-                + creneau.getHeureDebut() + "-" + creneau.getHeureFin() + " - " + posteLabel(creneau.getPoste());
+                + creneau.getHeureDebut() + "-" + creneau.getHeureFin() + " - " + creneauService.posteLabel(creneau.getPoste());
         notificationRepository.save(new NotificationModel(
                 user, "Confirmation d'inscription", message, "CONFIRMATION"));
 
@@ -203,7 +186,7 @@ public class CreneauResource {
             try {
                 EmailUtils.sendAssignment(benevole.getEmail(), benevole.getNomComplet(),
                         creneau.getJour(), creneau.getHeureDebut(), creneau.getHeureFin(),
-                        posteLabel(creneau.getPoste()), POSTE_WHATSAPP.getOrDefault(creneau.getPoste(), ""));
+                        creneauService.posteLabel(creneau.getPoste()), creneauService.posteWhatsapp(creneau.getPoste()));
                 logger.Log("PUT /api/creneau/" + id + "/inscription, assignment email sent to " + benevole.getEmail());
             } catch (Exception e) {
                 logger.ErrorLog("PUT /api/creneau/" + id + "/inscription, email failed: " + e.getMessage());
@@ -246,7 +229,7 @@ public class CreneauResource {
         creneau.setPrisPar(user);
 
         String message = "Vous avez été assigné au créneau " + creneau.getJour() + " "
-                + creneau.getHeureDebut() + "-" + creneau.getHeureFin() + " - " + posteLabel(creneau.getPoste());
+                + creneau.getHeureDebut() + "-" + creneau.getHeureFin() + " - " + creneauService.posteLabel(creneau.getPoste());
         notificationRepository.save(new NotificationModel(
                 user, "Affectation à un créneau", message, "CONFIRMATION"));
 
@@ -255,7 +238,7 @@ public class CreneauResource {
             try {
                 EmailUtils.sendAssignment(benevoleAssigne.getEmail(), benevoleAssigne.getNomComplet(),
                         creneau.getJour(), creneau.getHeureDebut(), creneau.getHeureFin(),
-                        posteLabel(creneau.getPoste()), POSTE_WHATSAPP.getOrDefault(creneau.getPoste(), ""));
+                        creneauService.posteLabel(creneau.getPoste()), creneauService.posteWhatsapp(creneau.getPoste()));
                 logger.Log("PUT /api/creneau/" + id + "/assign/" + benevoleId + ", assignment email sent to " + benevoleAssigne.getEmail());
             } catch (Exception e) {
                 logger.ErrorLog("PUT /api/creneau/" + id + "/assign/" + benevoleId + ", email failed: " + e.getMessage());
@@ -298,7 +281,7 @@ public class CreneauResource {
         creneau.setPrisPar(null);
 
         String message = nomQuitte + " a quitté le créneau " + creneau.getJour() + " "
-                + creneau.getHeureDebut() + "-" + creneau.getHeureFin() + " - " + posteLabel(creneau.getPoste());
+                + creneau.getHeureDebut() + "-" + creneau.getHeureFin() + " - " + creneauService.posteLabel(creneau.getPoste());
         for (UserModel admin : userRepository.findAll()) {
             if (Boolean.TRUE.equals(admin.getIsAdmin())) {
                 notificationRepository.save(new NotificationModel(

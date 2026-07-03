@@ -7,6 +7,9 @@ import fr.epita.assistants.ping.data.model.NotificationModel;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 @ApplicationScoped
 public class NotificationRepository {
@@ -15,17 +18,22 @@ public class NotificationRepository {
     EntityManager entityManager;
 
     public List<NotificationModel> findByUserId(UUID userId) {
-        return entityManager
-                .createQuery("SELECT n FROM NotificationModel n WHERE n.user.id = :userId ORDER BY n.createdAt DESC", NotificationModel.class)
-                .setParameter("userId", userId)
-                .getResultList();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<NotificationModel> cq = cb.createQuery(NotificationModel.class);
+        Root<NotificationModel> root = cq.from(NotificationModel.class);
+        cq.select(root)
+                .where(cb.equal(root.get("user").get("id"), userId))
+                .orderBy(cb.desc(root.get("createdAt")));
+        return entityManager.createQuery(cq).getResultList();
     }
 
     public long countUnreadByUserId(UUID userId) {
-        return entityManager
-                .createQuery("SELECT COUNT(n) FROM NotificationModel n WHERE n.user.id = :userId AND n.isRead = false", Long.class)
-                .setParameter("userId", userId)
-                .getSingleResult();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<NotificationModel> root = cq.from(NotificationModel.class);
+        cq.select(cb.count(root))
+                .where(cb.equal(root.get("user").get("id"), userId), cb.isFalse(root.get("isRead")));
+        return entityManager.createQuery(cq).getSingleResult();
     }
 
     public NotificationModel findById(UUID id) {

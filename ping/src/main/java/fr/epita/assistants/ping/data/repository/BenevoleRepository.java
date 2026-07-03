@@ -7,6 +7,9 @@ import fr.epita.assistants.ping.data.model.BenevoleModel;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 @ApplicationScoped
 public class BenevoleRepository {
@@ -15,9 +18,11 @@ public class BenevoleRepository {
     EntityManager entityManager;
 
     public List<BenevoleModel> findAll() {
-        return entityManager
-                .createQuery("SELECT b FROM BenevoleModel b", BenevoleModel.class)
-                .getResultList();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<BenevoleModel> cq = cb.createQuery(BenevoleModel.class);
+        Root<BenevoleModel> root = cq.from(BenevoleModel.class);
+        cq.select(root);
+        return entityManager.createQuery(cq).getResultList();
     }
 
     public BenevoleModel findById(UUID id) {

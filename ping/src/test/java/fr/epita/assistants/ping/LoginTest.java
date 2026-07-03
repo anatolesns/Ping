@@ -12,7 +12,7 @@ import io.restassured.http.ContentType;
 
 
 @QuarkusTest
-public class FonctionnelTest {
+public class LoginTest {
 
     String token;
 

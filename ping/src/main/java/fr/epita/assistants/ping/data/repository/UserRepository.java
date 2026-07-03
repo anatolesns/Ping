@@ -8,6 +8,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 @ApplicationScoped
 public class UserRepository {
@@ -16,9 +19,11 @@ public class UserRepository {
     EntityManager entityManager;
 
     public List<UserModel> findAll() {
-        return entityManager
-                .createQuery("SELECT u FROM UserModel u", UserModel.class)
-                .getResultList();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<UserModel> cq = cb.createQuery(UserModel.class);
+        Root<UserModel> root = cq.from(UserModel.class);
+        cq.select(root);
+        return entityManager.createQuery(cq).getResultList();
     }
 
     public UserModel findById(UUID id) {
@@ -26,17 +31,19 @@ public class UserRepository {
     }
 
     public UserModel findByLogin(String login) throws NoResultException {
-        return entityManager.createQuery(
-                "SELECT u FROM UserModel u WHERE u.login = :login", UserModel.class)
-                .setParameter("login", login)
-                .getSingleResult();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<UserModel> cq = cb.createQuery(UserModel.class);
+        Root<UserModel> root = cq.from(UserModel.class);
+        cq.select(root).where(cb.equal(root.get("login"), login));
+        return entityManager.createQuery(cq).getSingleResult();
     }
 
     public boolean loginExists(String login) {
-        long count = entityManager.createQuery(
-                "SELECT COUNT(u) FROM UserModel u WHERE u.login = :login", Long.class)
-                .setParameter("login", login)
-                .getSingleResult();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<UserModel> root = cq.from(UserModel.class);
+        cq.select(cb.count(root)).where(cb.equal(root.get("login"), login));
+        long count = entityManager.createQuery(cq).getSingleResult();
         return count != 0;
     }
 

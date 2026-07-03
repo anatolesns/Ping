@@ -7,6 +7,9 @@ import fr.epita.assistants.ping.data.model.CreneauModel;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 @ApplicationScoped
 public class CreneauRepository {
@@ -15,9 +18,11 @@ public class CreneauRepository {
     EntityManager entityManager;
 
     public List<CreneauModel> findAll() {
-        return entityManager
-                .createQuery("SELECT c FROM CreneauModel c", CreneauModel.class)
-                .getResultList();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<CreneauModel> cq = cb.createQuery(CreneauModel.class);
+        Root<CreneauModel> root = cq.from(CreneauModel.class);
+        cq.select(root);
+        return entityManager.createQuery(cq).getResultList();
     }
 
     public CreneauModel findById(UUID id) {
@@ -25,24 +30,27 @@ public class CreneauRepository {
     }
 
     public List<CreneauModel> findByJour(String jour) {
-        return entityManager.createQuery(
-                "SELECT c FROM CreneauModel c WHERE c.jour = :jour", CreneauModel.class)
-                .setParameter("jour", jour)
-                .getResultList();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<CreneauModel> cq = cb.createQuery(CreneauModel.class);
+        Root<CreneauModel> root = cq.from(CreneauModel.class);
+        cq.select(root).where(cb.equal(root.get("jour"), jour));
+        return entityManager.createQuery(cq).getResultList();
     }
 
     public List<CreneauModel> findByPoste(String poste) {
-        return entityManager.createQuery(
-                "SELECT c FROM CreneauModel c WHERE c.poste = :poste", CreneauModel.class)
-                .setParameter("poste", poste)
-                .getResultList();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<CreneauModel> cq = cb.createQuery(CreneauModel.class);
+        Root<CreneauModel> root = cq.from(CreneauModel.class);
+        cq.select(root).where(cb.equal(root.get("poste"), poste));
+        return entityManager.createQuery(cq).getResultList();
     }
 
     public List<CreneauModel> findByPrisParId(UUID userId) {
-        return entityManager.createQuery(
-                "SELECT c FROM CreneauModel c WHERE c.prisPar.id = :userId", CreneauModel.class)
-                .setParameter("userId", userId)
-                .getResultList();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<CreneauModel> cq = cb.createQuery(CreneauModel.class);
+        Root<CreneauModel> root = cq.from(CreneauModel.class);
+        cq.select(root).where(cb.equal(root.get("prisPar").get("id"), userId));
+        return entityManager.createQuery(cq).getResultList();
     }
 
     public void save(CreneauModel creneau) {

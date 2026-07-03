@@ -335,8 +335,6 @@ function AdminDashboard() {
           body: JSON.stringify(profileBody),
         });
         if (!profileRes.ok) throw new Error('Erreur lors de la création du profil bénévole');
-
-        console.log('Bénévole créé — login : ' + login + ' / mot de passe : ' + password);
       }
 
       resetGbForm();

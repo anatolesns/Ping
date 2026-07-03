@@ -6,6 +6,7 @@ import fr.epita.assistants.ping.data.repository.BenevoleRepository;
 import fr.epita.assistants.ping.data.repository.UserRepository;
 import fr.epita.assistants.ping.request.UpdateBenevoleRequest;
 import fr.epita.assistants.ping.response.BenevoleResponse;
+import fr.epita.assistants.ping.service.BenevoleService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -13,8 +14,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-import fr.epita.assistants.ping.utils.EmailUtils;
-import fr.epita.assistants.ping.utils.HashUtils;
 import fr.epita.assistants.ping.utils.Logger;
 
 import java.util.ArrayList;
@@ -37,6 +36,9 @@ public class BenevoleResource {
 
     @Inject
     Logger logger;
+
+    @Inject
+    BenevoleService benevoleService;
 
     @GET
     @Path("/me")
@@ -132,7 +134,7 @@ public class BenevoleResource {
             if (request.disponibilites != null) benevole.setDisponibilites(request.disponibilites);
             benevoleRepository.save(benevole);
             if (request.email != null && !request.email.isBlank()) {
-                sendCredentialsEmail(request.email, user);
+                benevoleService.sendCredentialsEmail(request.email, user);
             }
         } else {
             if (request.nomComplet != null) benevole.setNomComplet(request.nomComplet);
@@ -145,15 +147,5 @@ public class BenevoleResource {
 
         logger.Log("PUT /api/benevole/" + userId + ", Id = " + jwt.getSubject());
         return Response.ok(new BenevoleResponse(benevole)).build();
-    }
-
-    private void sendCredentialsEmail(String email, UserModel user) {
-        try {
-            String plainPassword = HashUtils.decrypt(user.getPassword());
-            EmailUtils.sendCredentials(email, user.getLogin(), plainPassword);
-            logger.Log("PUT /api/benevole, credentials email sent to " + email + " for login = " + user.getLogin());
-        } catch (Exception e) {
-            logger.ErrorLog("PUT /api/benevole, send credentials email failed for login = " + user.getLogin() + " , error = " + e.getMessage());
-        }
     }
 }
