@@ -4,17 +4,12 @@ Application de gestion pour le Salon Décarbonisation (Eurexpo Lyon), composée 
 
 ## Démarrage rapide
 
-Prérequis : [Docker](https://www.docker.com/) et Docker Compose.
-
 ```bash
 cd ping
 docker compose up --build
 ```
 
-Cette commande construit et tout les services 
-
-### Authentification
-
+Cette commande construit tout les services 
 
 ### Login
 
@@ -26,11 +21,9 @@ Partie bénévole
 identifiant : benevole.benevole
 mdp : benevole
 
-- La page d'accueil est **`/login`**. L'utilisateur s'y connecte avec un identifiant et un mot de passe.
-- Selon le(s) rôle(s) présents dans le token, l'utilisateur est redirigé automatiquement :
-  - `admin` → `/admin`
-  - `manager` → `/manager`
-  - autre (`user`) → `/home`
+partie manager
+identifiant : manager.buvette
+mdp : buvette
 
 ### Espaces utilisateur
 
@@ -44,4 +37,4 @@ Chaque route protégée vérifie la présence et la validité du token JWT ainsi
 
 La déconnexion consiste à supprimer le token du `localStorage`, ce qui invalide l'accès aux routes protégées et renvoie l'utilisateur vers la page de connexion.
 
-L'application sera disponible sur **http://localhost:3000** et proxifiera les appels API vers `http://localhost:8080` (backend à lancer séparément, par exemple via `docker compose up db app`).
+L'application sera disponible sur **http://localhost:3000** et proxifiera les appels API vers `http://localhost:8080`.
