@@ -22,12 +22,19 @@ public class Logger {
     String error_file;
 
 
+    /**
+     * Génère l'horodatage formaté utilisé comme préfixe des lignes de log.
+     */
     private static String timestamp() {
         return new SimpleDateFormat("dd/MM/yy - HH:mm:ss")
                 .format(Calendar.getInstance().getTime());
     }
 
 
+    /**
+     * Journalise un message d'information en vert dans la console et,
+     * si configuré, l'ajoute au fichier de log.
+     */
     public void Log(String message){
         String log = GREEN_TEXT + "[" + timestamp() + "] " + message + RESET_TEXT;
 
@@ -45,6 +52,10 @@ public class Logger {
         System.out.println(log);
     }
 
+    /**
+     * Journalise un message d'erreur en rouge dans la console et,
+     * si configuré, l'ajoute au fichier d'erreurs.
+     */
     public void ErrorLog(String message){
         String log = RED_TEXT + "[" + timestamp() + "] " + message + RESET_TEXT;
 

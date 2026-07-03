@@ -44,6 +44,10 @@ public class FolderResource {
     @Inject
     JsonWebToken jwt;
 
+    /**
+     * GET /api/folders - Liste les entrées (fichiers et sous-dossiers) présentes dans le
+     * dossier situé au chemin relatif donné.
+     */
     @GET
     public Response listFolder(@QueryParam("path") String path) {
         Path target = fs.resolve(path);
@@ -73,6 +77,9 @@ public class FolderResource {
         return Response.ok(entries).build();
     }
 
+    /**
+     * POST /api/folders - Crée un nouveau dossier (et ses parents) au chemin relatif donné.
+     */
     @POST
     public Response createFolder(PathRequest request) {
         if (request == null || request.relativePath == null || request.relativePath.isBlank()) {
@@ -98,6 +105,10 @@ public class FolderResource {
         return Response.status(Response.Status.CREATED).build();
     }
 
+    /**
+     * DELETE /api/folders - Supprime un dossier au chemin relatif donné. Si c'est la racine,
+     * seul son contenu est vidé (le dossier racine lui-même est conservé).
+     */
     @DELETE
     public Response deleteFolder(PathRequest request) {
         if (request == null || request.relativePath == null) {
@@ -129,6 +140,10 @@ public class FolderResource {
         return Response.noContent().build();
     }
 
+    /**
+     * PUT /api/folders/move - Déplace/renomme un dossier depuis le chemin source vers le
+     * chemin destination fournis.
+     */
     @PUT
     @jakarta.ws.rs.Path("/move")
     public Response moveFolder(MoveRequest request) {
@@ -161,6 +176,9 @@ public class FolderResource {
         return Response.noContent().build();
     }
 
+    /**
+     * Supprime récursivement tout le contenu d'un dossier sans supprimer le dossier lui-même.
+     */
     private void emptyDirectory(Path dir) throws IOException {
         try (Stream<Path> children = Files.list(dir)) {
             for (Path child : (Iterable<Path>) children::iterator) {
@@ -169,6 +187,9 @@ public class FolderResource {
         }
     }
 
+    /**
+     * Supprime un fichier, ou un dossier et tout son contenu de façon récursive.
+     */
     private void deleteRecursively(Path path) throws IOException {
         if (Files.isDirectory(path)) {
             try (Stream<Path> children = Files.list(path)) {

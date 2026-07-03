@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
+// Composant de la page de connexion : gère le formulaire de login et redirige l'utilisateur vers le bon tableau de bord.
 function Login() {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // Gère la soumission du formulaire de connexion : envoie les identifiants à l'API, stocke le token puis redirige selon le rôle de l'utilisateur.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');

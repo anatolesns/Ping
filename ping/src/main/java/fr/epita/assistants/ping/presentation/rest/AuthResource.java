@@ -40,6 +40,10 @@ public class AuthResource {
     @Inject
     AuthService authService;
 
+    /**
+     * GET /api/user/all - Retourne la liste de tous les utilisateurs enregistrés.
+     * Réservé aux admins et managers.
+     */
     @GET
     @Path("/all")
     @RolesAllowed({"admin", "manager"})
@@ -62,6 +66,10 @@ public class AuthResource {
         return Response.ok(res).build();
     }
 
+    /**
+     * POST /api/user - Crée un nouvel utilisateur (login/mot de passe chiffré) après
+     * validation du format de login et de l'unicité du login. Réservé aux admins et managers.
+     */
     @POST
     @Transactional
     @RolesAllowed({"admin", "manager"})
@@ -116,6 +124,10 @@ public class AuthResource {
         return Response.ok(new UserResponse(user)).build();
     }
 
+    /**
+     * POST /api/user/login - Authentifie un utilisateur à partir de son login et mot de
+     * passe, et retourne un token JWT en cas de succès.
+     */
     @POST
     @Path("/login")
     @Transactional
@@ -155,6 +167,10 @@ public class AuthResource {
         }
     }
 
+    /**
+     * GET /api/user/refresh - Régénère un nouveau token JWT pour l'utilisateur actuellement
+     * authentifié (identifié via le sujet du token en cours).
+     */
     @GET
     @Path("/refresh")
     @RolesAllowed({"user", "admin"})
@@ -179,6 +195,10 @@ public class AuthResource {
         }
     }
 
+    /**
+     * GET /api/user/{id} - Retourne les informations d'un utilisateur donné.
+     * Un utilisateur non admin ne peut consulter que son propre profil.
+     */
     @GET
     @Path("/{id}")
     @RolesAllowed({"user", "admin"})
@@ -204,6 +224,10 @@ public class AuthResource {
         return Response.ok(new UserResponse(user)).build();
     }
 
+    /**
+     * PUT /api/user/{id} - Met à jour le nom affiché, le mot de passe et/ou l'avatar
+     * d'un utilisateur. Un utilisateur non admin ne peut modifier que son propre profil.
+     */
     @PUT
     @Path("/{id}")
     @Transactional
@@ -249,6 +273,9 @@ public class AuthResource {
         return Response.ok(new UserResponse(user)).build();
     }
 
+    /**
+     * DELETE /api/user/{id} - Supprime un utilisateur existant. Réservé aux admins et managers.
+     */
     @DELETE
     @Path("/{id}")
     @Transactional

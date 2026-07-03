@@ -19,12 +19,14 @@ const TABS = [
   { id: 'gestion-benevoles', label: 'Gestion des Bénévoles', colorClass: 'mgr-tab-gestion' },
 ];
 
+// Composant principal du tableau de bord manager/admin : gère le planning des créneaux, les bénévoles et les notifications.
 function AdminDashboard() {
   const navigate = useNavigate();
 
   const token = localStorage.getItem('token');
   const username = localStorage.getItem('username') || 'manager';
 
+  // Extrait le poste géré par le manager à partir des groupes contenus dans le token (ex: "manager_accueil").
   const managerPoste = (() => {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -61,6 +63,7 @@ function AdminDashboard() {
   const [gbSaving, setGbSaving] = useState(false);
   const [gbError, setGbError] = useState('');
 
+  // Récupère la liste de tous les créneaux depuis l'API et met à jour l'état local.
   const fetchCreneaux = useCallback(async () => {
     try {
       const res = await fetch('/api/creneau/all', {
@@ -75,6 +78,7 @@ function AdminDashboard() {
     }
   }, [token]);
 
+  // Récupère la liste de tous les bénévoles depuis l'API et met à jour l'état local.
   const fetchBenevoles = useCallback(async () => {
     try {
       const res = await fetch('/api/benevole/all', {
@@ -89,6 +93,7 @@ function AdminDashboard() {
     }
   }, [token]);
 
+  // Récupère les notifications de l'utilisateur connecté depuis l'API et met à jour l'état local.
   const fetchNotifications = useCallback(async () => {
     try {
       const res = await fetch('/api/notification/me', {
@@ -103,18 +108,21 @@ function AdminDashboard() {
     }
   }, [token]);
 
+  // Charge les créneaux, les bénévoles et les notifications au montage du composant.
   useEffect(() => {
     fetchCreneaux();
     fetchBenevoles();
     fetchNotifications();
   }, [fetchCreneaux, fetchBenevoles, fetchNotifications]);
 
+  // Déconnecte l'utilisateur en supprimant ses données de session puis redirige vers la page de connexion.
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     navigate('/login');
   };
 
+  // Formate une date en durée relative lisible (ex: "Il y a 5 minutes").
   const formatRelativeTime = (createdAt) => {
     const diff = Math.floor((Date.now() - new Date(createdAt).getTime()) / 1000);
     if (diff < 60) return "À l'instant";
@@ -132,10 +140,12 @@ function AdminDashboard() {
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
+  // Ouvre le panneau des notifications.
   const handleOpenNotifications = () => {
     setShowNotifications(true);
   };
 
+  // Ferme le panneau des notifications et marque toutes les notifications comme lues.
   const handleCloseNotifications = async () => {
     setShowNotifications(false);
     try {
@@ -149,6 +159,7 @@ function AdminDashboard() {
     }
   };
 
+  // Retire le bénévole inscrit sur un créneau donné puis rafraîchit la liste des créneaux.
   const handleRemove = async (creneauId) => {
     try {
       const res = await fetch('/api/creneau/' + creneauId + '/desinscription', {
@@ -163,15 +174,18 @@ function AdminDashboard() {
     }
   };
 
+  // Ouvre la fenêtre modale d'assignation d'un bénévole pour un jour, un horaire et un poste donnés.
   const openAssignModal = (jour, horaire, poste) => {
     setAssignTarget({ jour, horaire, poste });
   };
 
+  // Ferme la fenêtre modale d'assignation, sauf si une assignation est en cours.
   const closeAssignModal = () => {
     if (assigning) return;
     setAssignTarget(null);
   };
 
+  // Calcule la liste des bénévoles disponibles pour un jour/horaire donnés et non déjà occupés sur ce créneau.
   const getAvailableBenevoles = (jour, horaire) => {
     const [debut, fin] = horaire.split('-');
     const dispoKey = jour + ' ' + horaire;
@@ -185,6 +199,7 @@ function AdminDashboard() {
     );
   };
 
+  // Assigne un bénévole au créneau ciblé, en créant le créneau s'il n'existe pas encore, puis rafraîchit les données.
   const handleAssign = async (benevoleId) => {
     if (!assignTarget) return;
     setAssigning(true);
@@ -222,6 +237,7 @@ function AdminDashboard() {
     setAssigning(false);
   };
 
+  // Génère un identifiant de connexion (login) simplifié à partir du nom complet d'un bénévole.
   const slugifyLogin = (nomComplet) => {
     const clean = nomComplet
       .normalize('NFD')
@@ -236,8 +252,10 @@ function AdminDashboard() {
     return (clean[0] || 'benevole') + '.' + Math.floor(Math.random() * 1000);
   };
 
+  // Génère un mot de passe aléatoire pour un nouveau compte bénévole.
   const generatePassword = () => Math.random().toString(36).slice(-10);
 
+  // Réinitialise le formulaire de gestion d'un bénévole (champs et état d'édition).
   const resetGbForm = () => {
     setGbEditingId(null);
     setGbNomComplet('');
@@ -250,6 +268,7 @@ function AdminDashboard() {
     setGbError('');
   };
 
+  // Pré-remplit le formulaire avec les données d'un bénévole existant pour le modifier.
   const startEditBenevole = (b) => {
     setGbEditingId(b.id);
     setGbNomComplet(b.nomComplet || '');
@@ -262,6 +281,7 @@ function AdminDashboard() {
     setGbError('');
   };
 
+  // Ajoute une disponibilité (jour + créneau horaire) à la liste des disponibilités du bénévole en cours d'édition.
   const handleAddGbDispo = () => {
     if (!gbDispoJour || !gbDispoCreneau) return;
     const entry = gbDispoJour + ' ' + gbDispoCreneau;
@@ -271,10 +291,12 @@ function AdminDashboard() {
     setGbDispoCreneau('');
   };
 
+  // Supprime une disponibilité de la liste à l'index donné.
   const handleRemoveGbDispo = (index) => {
     setGbDisponibilites(gbDisponibilites.filter((_, i) => i !== index));
   };
 
+  // Valide et enregistre le formulaire bénévole : met à jour un bénévole existant ou crée un nouveau compte et profil.
   const handleSubmitGb = async () => {
     if (!gbNomComplet.trim() || !gbAge || !gbTelephone.trim()) {
       setGbError('Nom complet, âge et téléphone sont obligatoires.');
@@ -347,6 +369,7 @@ function AdminDashboard() {
     setGbSaving(false);
   };
 
+  // Supprime un bénévole (après confirmation) : le retire de ses créneaux puis supprime son profil et son compte.
   const handleDeleteBenevole = async (b) => {
     if (!window.confirm('Supprimer ' + b.nomComplet + ' ?')) return;
     try {
@@ -373,11 +396,13 @@ function AdminDashboard() {
     }
   };
 
+  // Calcule la liste des postes à afficher selon le filtre sélectionné.
   const postesAffiches = useMemo(() => {
     if (filtrePoste === 'tous') return POSTES;
     return POSTES.filter((p) => p.id === filtrePoste);
   }, [filtrePoste]);
 
+  // Retourne les créneaux correspondant à une cellule précise du planning (jour, horaire, poste).
   const getCreneauxCell = (jour, horaire, posteId) => {
     const [debut, fin] = horaire.split('-');
     return creneaux.filter(
@@ -385,17 +410,20 @@ function AdminDashboard() {
     );
   };
 
+  // Retourne le libellé lisible d'un poste à partir de son identifiant.
   const getPosteLabel = (id) => {
     const poste = POSTES.find((p) => p.id === id);
     return poste ? poste.label : id;
   };
 
+  // Construit un dictionnaire des bénévoles indexé par identifiant pour un accès rapide.
   const benevolesParId = useMemo(() => {
     const map = {};
     benevoles.forEach((b) => { map[b.id] = b; });
     return map;
   }, [benevoles]);
 
+  // Regroupe les créneaux par bénévole et calcule le total d'heures effectuées par chacun, trié par nom.
   const planningParBenevole = useMemo(() => {
     const groupes = {};
     creneaux

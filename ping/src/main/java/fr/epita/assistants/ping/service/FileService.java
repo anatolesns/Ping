@@ -11,10 +11,18 @@ public class FileService {
     @ConfigProperty(name = "filesystem.default.path")
     String rootPath;
 
+    /**
+     * Retourne le répertoire racine du système de fichiers géré, sous forme
+     * de chemin absolu normalisé.
+     */
     public Path getRoot() {
         return Path.of(rootPath).toAbsolutePath().normalize();
     }
 
+    /**
+     * Résout un chemin relatif par rapport à la racine en empêchant toute
+     * tentative de sortie de celle-ci (path traversal), retournant null si invalide.
+     */
     public Path resolve(String relativePath) {
         Path root = getRoot();
         String safe = "";

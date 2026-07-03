@@ -30,6 +30,10 @@ public class NotificationResource {
     @Inject
     Logger logger;
 
+    /**
+     * GET /api/notification/me - Retourne toutes les notifications de l'utilisateur
+     * actuellement authentifié.
+     */
     @GET
     @Path("/me")
     @RolesAllowed({"user", "admin", "manager"})
@@ -44,6 +48,10 @@ public class NotificationResource {
         return Response.ok(res).build();
     }
 
+    /**
+     * GET /api/notification/me/unread-count - Retourne le nombre de notifications non lues
+     * de l'utilisateur actuellement authentifié.
+     */
     @GET
     @Path("/me/unread-count")
     @RolesAllowed({"user", "admin", "manager"})
@@ -54,6 +62,10 @@ public class NotificationResource {
         return Response.ok("{\"count\": " + count + "}").build();
     }
 
+    /**
+     * PUT /api/notification/me/read-all - Marque toutes les notifications de l'utilisateur
+     * actuellement authentifié comme lues.
+     */
     @PUT
     @Path("/me/read-all")
     @Transactional

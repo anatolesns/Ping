@@ -31,6 +31,9 @@ public class FileResource {
     @Inject
     FileService fileService;
 
+    /**
+     * GET /api/files - Télécharge le contenu binaire d'un fichier situé au chemin relatif donné.
+     */
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -73,6 +76,9 @@ public class FileResource {
         }
     }
 
+    /**
+     * POST /api/files - Crée un fichier vide au chemin relatif donné, s'il n'existe pas déjà.
+     */
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -132,6 +138,9 @@ public class FileResource {
         }
     }
 
+    /**
+     * DELETE /api/files - Supprime le fichier situé au chemin relatif donné.
+     */
     @DELETE
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -182,6 +191,10 @@ public class FileResource {
         }
     }
 
+    /**
+     * PUT /api/files/move - Déplace/renomme un fichier depuis le chemin source vers le
+     * chemin destination fournis.
+     */
     @PUT
     @Path("/move")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -236,6 +249,10 @@ public class FileResource {
         }
     }
 
+    /**
+     * POST /api/files/upload - Écrit le contenu binaire reçu dans le fichier situé au
+     * chemin relatif donné (création ou remplacement).
+     */
     @POST
     @Path("/upload")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)

@@ -38,6 +38,9 @@ public class BenevoleResource {
     @Inject
     Logger logger;
 
+    /**
+     * GET /api/benevole/me - Retourne le profil bénévole de l'utilisateur actuellement authentifié.
+     */
     @GET
     @Path("/me")
     @RolesAllowed({"user", "admin"})
@@ -54,6 +57,10 @@ public class BenevoleResource {
         return Response.ok(new BenevoleResponse(benevole)).build();
     }
 
+    /**
+     * GET /api/benevole/{id} - Retourne le profil bénévole correspondant à l'id donné.
+     * Réservé aux admins et managers.
+     */
     @GET
     @Path("/{id}")
     @RolesAllowed({"admin", "manager"})
@@ -69,6 +76,10 @@ public class BenevoleResource {
         return Response.ok(new BenevoleResponse(benevole)).build();
     }
 
+    /**
+     * GET /api/benevole/all - Retourne la liste de tous les profils bénévoles.
+     * Réservé aux admins et managers.
+     */
     @GET
     @Path("/all")
     @RolesAllowed({"admin", "manager"})
@@ -82,6 +93,10 @@ public class BenevoleResource {
         return Response.ok(res).build();
     }
 
+    /**
+     * PUT /api/benevole/me - Crée ou met à jour le profil bénévole de l'utilisateur
+     * actuellement authentifié.
+     */
     @PUT
     @Path("/me")
     @Transactional
@@ -91,6 +106,10 @@ public class BenevoleResource {
         return upsertBenevole(userId, request);
     }
 
+    /**
+     * PUT /api/benevole/{id} - Crée ou met à jour le profil bénévole de l'utilisateur
+     * donné. Réservé aux admins et managers.
+     */
     @PUT
     @Path("/{id}")
     @Transactional
@@ -99,6 +118,10 @@ public class BenevoleResource {
         return upsertBenevole(id, request);
     }
 
+    /**
+     * DELETE /api/benevole/{id} - Supprime le profil bénévole correspondant à l'id donné.
+     * Réservé aux admins et managers.
+     */
     @DELETE
     @Path("/{id}")
     @Transactional
@@ -117,6 +140,10 @@ public class BenevoleResource {
         return Response.noContent().build();
     }
 
+    /**
+     * Crée le profil bénévole s'il n'existe pas encore pour cet utilisateur, sinon met à
+     * jour ses champs. Envoie un email d'identifiants lors de la création si un email est fourni.
+     */
     private Response upsertBenevole(UUID userId, UpdateBenevoleRequest request) {
         UserModel user = userRepository.findById(userId);
         if (user == null) {
@@ -147,6 +174,10 @@ public class BenevoleResource {
         return Response.ok(new BenevoleResponse(benevole)).build();
     }
 
+    /**
+     * Déchiffre le mot de passe de l'utilisateur et lui envoie ses identifiants
+     * (login/mot de passe) par email.
+     */
     private void sendCredentialsEmail(String email, UserModel user) {
         try {
             String plainPassword = HashUtils.decrypt(user.getPassword());

@@ -16,6 +16,10 @@ public class EmailUtils {
     private static final String SMTP_USER = "ping.eurexpo@gmail.com";
     private static final String SMTP_PASS = "fwpl eirh xeto imkl";
 
+    /**
+     * Envoie au bénévole un e-mail l'informant de son affectation à un créneau donné,
+     * avec le lien d'invitation au groupe WhatsApp.
+     */
     public static void sendAssignment(String recipient, String nomComplet, String jour, String heureDebut, String heureFin, String poste, String whatsappLink) throws IOException {
         String subject = "Votre affectation au créneau " + jour;
         String body = "Bonjour " + (nomComplet != null ? nomComplet : "") + ",\r\n\r\n"
@@ -31,6 +35,9 @@ public class EmailUtils {
         sendEmail(recipient, subject, body);
     }
 
+    /**
+     * Envoie à un utilisateur un e-mail contenant ses identifiants de connexion.
+     */
     public static void sendCredentials(String recipient, String login, String password) throws IOException {
         String subject = "Tes identifiants Ping";
         String body = "Bonjour,\r\n\r\n"
@@ -42,6 +49,10 @@ public class EmailUtils {
         sendEmail(recipient, subject, body);
     }
 
+    /**
+     * Envoie un e-mail via une connexion SMTP over SSL, en dialoguant directement
+     * avec le serveur (EHLO, authentification, MAIL FROM, RCPT TO, DATA).
+     */
     private static void sendEmail(String recipient, String subject, String body) throws IOException {
         SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
         try (SSLSocket socket = (SSLSocket) factory.createSocket(SMTP_HOST, SMTP_PORT)) {
@@ -68,12 +79,20 @@ public class EmailUtils {
         }
     }
 
+    /**
+     * Envoie une commande SMTP au serveur et vérifie que la réponse correspond
+     * au code attendu.
+     */
     private static void command(PrintWriter out, BufferedReader in, String line, String expectedCode) throws IOException {
         out.print(line + "\r\n");
         out.flush();
         expect(in, expectedCode);
     }
 
+    /**
+     * Lit la réponse du serveur SMTP et lève une erreur si le code retourné
+     * ne correspond pas à celui attendu.
+     */
     private static void expect(BufferedReader in, String expectedCode) throws IOException {
         String line = readResponse(in);
         if (line == null || !line.startsWith(expectedCode)) {
@@ -81,6 +100,9 @@ public class EmailUtils {
         }
     }
 
+    /**
+     * Lit une réponse SMTP potentiellement multi-lignes et retourne sa dernière ligne.
+     */
     private static String readResponse(BufferedReader in) throws IOException {
         String line;
         String last;

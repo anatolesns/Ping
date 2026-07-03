@@ -13,8 +13,15 @@ public class BenevoleResponse {
     public String email;
     public List<String> disponibilites;
 
+    /**
+     * Constructeur vide requis pour la (dé)sérialisation JSON.
+     */
     public BenevoleResponse() {}
 
+    /**
+     * Construit la réponse à partir d'un bénévole persisté, en n'exposant
+     * que les champs destinés au client.
+     */
     public BenevoleResponse(BenevoleModel benevole) {
         this.id = benevole.getId();
         this.nomComplet = benevole.getNomComplet();

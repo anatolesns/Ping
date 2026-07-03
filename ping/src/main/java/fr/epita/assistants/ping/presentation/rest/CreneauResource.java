@@ -64,10 +64,17 @@ public class CreneauResource {
     @Inject
     Logger logger;
 
+    /**
+     * Retourne le libellé lisible d'un poste (ex: "billetterie" -> "Billetterie"),
+     * ou le code brut si aucun libellé n'est défini.
+     */
     private static String posteLabel(String poste) {
         return POSTE_LABELS.getOrDefault(poste, poste);
     }
 
+    /**
+     * GET /api/creneau/all - Retourne la liste de tous les créneaux existants.
+     */
     @GET
     @Path("/all")
     @RolesAllowed({"user", "admin", "manager"})
@@ -81,6 +88,9 @@ public class CreneauResource {
         return Response.ok(res).build();
     }
 
+    /**
+     * GET /api/creneau/{id} - Retourne le créneau correspondant à l'id donné.
+     */
     @GET
     @Path("/{id}")
     @RolesAllowed({"user", "admin"})
@@ -96,6 +106,9 @@ public class CreneauResource {
         return Response.ok(new CreneauResponse(creneau)).build();
     }
 
+    /**
+     * GET /api/creneau/jour/{jour} - Retourne tous les créneaux disponibles pour un jour donné.
+     */
     @GET
     @Path("/jour/{jour}")
     @RolesAllowed({"user", "admin"})
@@ -109,6 +122,9 @@ public class CreneauResource {
         return Response.ok(res).build();
     }
 
+    /**
+     * GET /api/creneau/poste/{poste} - Retourne tous les créneaux disponibles pour un poste donné.
+     */
     @GET
     @Path("/poste/{poste}")
     @RolesAllowed({"user", "admin"})
@@ -122,6 +138,10 @@ public class CreneauResource {
         return Response.ok(res).build();
     }
 
+    /**
+     * GET /api/creneau/mes-creneaux - Retourne les créneaux pris par l'utilisateur
+     * actuellement authentifié.
+     */
     @GET
     @Path("/mes-creneaux")
     @RolesAllowed({"user", "admin"})
@@ -136,6 +156,10 @@ public class CreneauResource {
         return Response.ok(res).build();
     }
 
+    /**
+     * POST /api/creneau - Crée un nouveau créneau et notifie tous les bénévoles de sa
+     * disponibilité. Réservé aux admins et managers.
+     */
     @POST
     @Transactional
     @RolesAllowed({"admin", "manager"})
@@ -161,6 +185,10 @@ public class CreneauResource {
         return Response.ok(new CreneauResponse(creneau)).build();
     }
 
+    /**
+     * PUT /api/creneau/{id}/inscription - Inscrit l'utilisateur authentifié sur un créneau
+     * libre, envoie une notification de confirmation et un email d'affectation si possible.
+     */
     @PUT
     @Path("/{id}/inscription")
     @Transactional
@@ -214,6 +242,10 @@ public class CreneauResource {
         return Response.ok(new CreneauResponse(creneau)).build();
     }
 
+    /**
+     * PUT /api/creneau/{id}/assign/{benevoleId} - Assigne un bénévole donné à un créneau
+     * libre, envoie une notification et un email d'affectation. Réservé aux admins et managers.
+     */
     @PUT
     @Path("/{id}/assign/{benevoleId}")
     @Transactional
@@ -266,6 +298,10 @@ public class CreneauResource {
         return Response.ok(new CreneauResponse(creneau)).build();
     }
 
+    /**
+     * PUT /api/creneau/{id}/desinscription - Désinscrit l'utilisateur (ou le titulaire, si
+     * appelé par un admin/manager) d'un créneau et notifie les admins du désistement.
+     */
     @PUT
     @Path("/{id}/desinscription")
     @Transactional
@@ -310,6 +346,10 @@ public class CreneauResource {
         return Response.ok(new CreneauResponse(creneau)).build();
     }
 
+    /**
+     * DELETE /api/creneau/{id} - Supprime le créneau correspondant à l'id donné.
+     * Réservé aux admins et managers.
+     */
     @DELETE
     @Path("/{id}")
     @Transactional

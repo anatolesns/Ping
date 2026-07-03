@@ -15,6 +15,10 @@ public class UserResponse {
     public Boolean isAdmin;
     public String avatar;
 
+    /**
+     * Construit la réponse à partir d'un utilisateur persisté, en n'exposant
+     * que les champs destinés au client (sans le mot de passe).
+     */
     public UserResponse(UserModel u) {
         this.id = u.getId();
         this.login = u.getLogin();

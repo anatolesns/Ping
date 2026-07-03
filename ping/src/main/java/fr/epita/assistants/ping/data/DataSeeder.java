@@ -26,6 +26,11 @@ public class DataSeeder {
     @Inject
     BenevoleRepository benevoleRepository;
 
+    /**
+     * Initialise les données de base au démarrage de l'application : compte admin,
+     * compte bénévole de démonstration, comptes managers par poste et créneaux types,
+     * uniquement s'ils n'existent pas déjà.
+     */
     @Transactional
     void onStart(@Observes StartupEvent ev) {
         try {
@@ -62,6 +67,9 @@ public class DataSeeder {
         }
     }
 
+    /**
+     * Crée un compte manager avec le rôle donné s'il n'existe pas encore.
+     */
     private void seedManager(UserRepository repo, String login, String password, String displayName, String role) {
         try {
             if (!repo.loginExists(login)) {

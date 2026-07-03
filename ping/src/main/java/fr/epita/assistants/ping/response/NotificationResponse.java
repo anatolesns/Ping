@@ -13,8 +13,15 @@ public class NotificationResponse {
     public Instant createdAt;
     public Boolean isRead;
 
+    /**
+     * Constructeur vide requis pour la (dé)sérialisation JSON.
+     */
     public NotificationResponse() {}
 
+    /**
+     * Construit la réponse à partir d'une notification persistée, en
+     * n'exposant que les champs destinés au client.
+     */
     public NotificationResponse(NotificationModel notification) {
         this.id = notification.getId();
         this.title = notification.getTitle();

@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import UserDashboard from './pages/UserDashboard';
 
+// Protège une route en vérifiant la présence d'un token et, si un rôle est précisé, l'appartenance de l'utilisateur à ce groupe.
 function ProtectedRoute({ children, role }) {
   const token = localStorage.getItem('token');
   if (!token) return <Navigate to="/login" />;
@@ -18,6 +19,7 @@ function ProtectedRoute({ children, role }) {
   return children;
 }
 
+// Protège une route réservée aux utilisateurs du groupe "manager".
 function ManagerRoute({ children }) {
   const token = localStorage.getItem('token');
   if (!token) return <Navigate to="/login" />;
@@ -33,6 +35,7 @@ function ManagerRoute({ children }) {
   return children;
 }
 
+// Composant racine de l'application : définit les routes principales et associe chaque page à sa protection d'accès.
 function App() {
   return (
     <BrowserRouter>

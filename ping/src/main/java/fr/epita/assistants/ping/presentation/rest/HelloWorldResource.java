@@ -9,6 +9,9 @@ import static fr.epita.assistants.ping.errors.ErrorsCode.EXAMPLE_ERROR;
 @Path("/api")
 public class HelloWorldResource {
 
+    /**
+     * GET /api/hello - Endpoint de test qui retourne un simple message "Hello World !".
+     */
     @GET
     @Path("/hello")
     @Produces(MediaType.TEXT_PLAIN)
@@ -16,6 +19,10 @@ public class HelloWorldResource {
         return Response.ok("Hello World !").build();
     }
 
+    /**
+     * GET /api/error - Endpoint de démonstration qui déclenche volontairement une erreur
+     * pour tester la gestion des exceptions.
+     */
     @GET
     @Path("/error")
     @Produces(MediaType.APPLICATION_JSON)

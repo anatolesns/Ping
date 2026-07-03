@@ -10,6 +10,7 @@ const POSTES = [
   { id: 'conference', label: 'Conférence', emoji: '🖊' },
 ];
 
+// Composant principal du tableau de bord bénévole : gère les créneaux disponibles, le profil et les disponibilités du bénévole.
 function UserDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('creneaux');
@@ -37,6 +38,7 @@ function UserDashboard() {
 
   const token = localStorage.getItem('token');
 
+  // Extrait l'identifiant de l'utilisateur connecté à partir du token JWT.
   const getUserId = () => {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -46,6 +48,7 @@ function UserDashboard() {
     }
   };
 
+  // Récupère les notifications de l'utilisateur connecté depuis l'API et met à jour l'état local.
   const fetchNotifications = useCallback(async () => {
     try {
       const res = await fetch('/api/notification/me', {
@@ -60,6 +63,7 @@ function UserDashboard() {
     }
   }, [token]);
 
+  // Récupère la liste de tous les créneaux depuis l'API et met à jour l'état local.
   const fetchCreneaux = useCallback(async () => {
     try {
       const res = await fetch('/api/creneau/all', {
@@ -74,6 +78,7 @@ function UserDashboard() {
     }
   }, [token]);
 
+  // Récupère les créneaux auxquels le bénévole connecté est inscrit.
   const fetchMesCreneaux = useCallback(async () => {
     try {
       const res = await fetch('/api/creneau/mes-creneaux', {
@@ -88,6 +93,7 @@ function UserDashboard() {
     }
   }, [token]);
 
+  // Récupère le profil bénévole de l'utilisateur connecté (informations personnelles et disponibilités).
   const fetchBenevole = useCallback(async () => {
     try {
       const res = await fetch('/api/benevole/me', {
@@ -108,6 +114,7 @@ function UserDashboard() {
     }
   }, [token]);
 
+  // Charge les créneaux, les créneaux du bénévole, son profil et ses notifications au montage du composant.
   useEffect(() => {
     fetchCreneaux();
     fetchMesCreneaux();
@@ -115,6 +122,7 @@ function UserDashboard() {
     fetchNotifications();
   }, [fetchCreneaux, fetchMesCreneaux, fetchBenevole, fetchNotifications]);
 
+  // Recalcule le nombre de créneaux réservés et le total d'heures inscrites à chaque changement des créneaux du bénévole.
   useEffect(() => {
     let heures = 0;
     mesCreneaux.forEach((c) => {
@@ -129,6 +137,7 @@ function UserDashboard() {
     }));
   }, [mesCreneaux]);
 
+  // Met à jour le nombre de disponibilités affiché dans le résumé à chaque changement de la liste des disponibilités.
   useEffect(() => {
     setResume((prev) => ({
       ...prev,
@@ -136,6 +145,7 @@ function UserDashboard() {
     }));
   }, [disponibilites]);
 
+  // Enregistre les modifications du profil bénévole (informations personnelles et disponibilités) via l'API.
   const handleSaveBenevole = async () => {
     setSaving(true);
     setSaveMessage('');
@@ -165,6 +175,7 @@ function UserDashboard() {
     setSaving(false);
   };
 
+  // Ajoute une nouvelle disponibilité (jour + créneau horaire) sélectionnée et l'enregistre via l'API.
   const handleAddDispo = async () => {
     if (!selectedJour || !selectedCreneau) return;
     const entry = selectedJour + ' ' + selectedCreneau;
@@ -189,6 +200,7 @@ function UserDashboard() {
     }
   };
 
+  // Supprime une disponibilité à l'index donné et enregistre la mise à jour via l'API.
   const handleRemoveDispo = async (index) => {
     const updated = disponibilites.filter((_, i) => i !== index);
     try {
@@ -210,6 +222,7 @@ function UserDashboard() {
 
   const username = localStorage.getItem('username') || 'bénévole';
 
+  // Déconnecte l'utilisateur en supprimant ses données de session puis redirige vers la page de connexion.
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
@@ -219,6 +232,7 @@ function UserDashboard() {
   const JOURS = ['Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
   const HORAIRES = ['08:00-12:00', '12:00-16:00', '16:00-20:00'];
 
+  // Retourne les créneaux du bénévole correspondant à une cellule précise du planning (jour, horaire).
   const getMesCreneauxCell = (jour, horaire) => {
     const [debut, fin] = horaire.split('-');
     return mesCreneaux.filter(
@@ -226,6 +240,7 @@ function UserDashboard() {
     );
   };
 
+  // Inscrit ou désinscrit le bénévole connecté sur un créneau donné, selon son état actuel, puis rafraîchit les données.
   const handleInscription = async (creneauId) => {
     const creneau = creneaux.find((c) => c.id === creneauId);
     const userId = getUserId();
@@ -249,10 +264,12 @@ function UserDashboard() {
     }
   };
 
+  // Filtre les créneaux selon le poste sélectionné et les trie pour mettre en avant les créneaux du bénévole puis les créneaux libres.
   const creneauxFiltres = useMemo(() => {
     const userId = getUserId();
     const filtered = filtrePoste === 'tous' ? creneaux : creneaux.filter((c) => c.poste === filtrePoste);
     return [...filtered].sort((a, b) => {
+      // Détermine la priorité de tri d'un créneau : inscrit par l'utilisateur (0), libre (1), pris par un autre (2).
       const priority = (c) => {
         if (c.isPris && c.prisParId === userId) return 0;
         if (!c.isPris) return 1;
@@ -262,8 +279,10 @@ function UserDashboard() {
     });
   }, [filtrePoste, creneaux]);
 
+  // Retourne les informations d'un poste (label, emoji) à partir de son identifiant.
   const getPoste = (id) => POSTES.find((p) => p.id === id);
 
+  // Formate une date en durée relative lisible (ex: "Il y a 5 minutes").
   const formatRelativeTime = (createdAt) => {
     const diff = Math.floor((Date.now() - new Date(createdAt).getTime()) / 1000);
     if (diff < 60) return "À l'instant";
@@ -281,10 +300,12 @@ function UserDashboard() {
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
+  // Ouvre le panneau des notifications.
   const handleOpenNotifications = () => {
     setShowNotifications(true);
   };
 
+  // Ferme le panneau des notifications et marque toutes les notifications comme lues.
   const handleCloseNotifications = async () => {
     setShowNotifications(false);
     try {

@@ -15,12 +15,19 @@ public class HashUtils {
     private static final int IV_LENGTH = 12;
     private static final int TAG_LENGTH = 128;
 
+    /**
+     * Dérive une clé secrète AES à partir d'un mot de passe via un hachage SHA-256.
+     */
     private static SecretKey deriveKey(String password) throws Exception {
         byte[] hash = MessageDigest.getInstance("SHA-256")
                 .digest(password.getBytes(StandardCharsets.UTF_8));
         return new SecretKeySpec(hash, "AES");
     }
 
+    /**
+     * Chiffre un mot de passe en AES/GCM avec un vecteur d'initialisation aléatoire
+     * et retourne le résultat encodé en Base64.
+     */
     public static String encrypt(String password) throws Exception {
         String key = "Noximillienlhorloger";
         SecretKey secretKey = deriveKey(key);
@@ -39,6 +46,10 @@ public class HashUtils {
         return Base64.getEncoder().encodeToString(result);
     }
 
+    /**
+     * Déchiffre un mot de passe précédemment chiffré par {@code encrypt}, en
+     * retrouvant le vecteur d'initialisation stocké au début des données.
+     */
     public static String decrypt(String encrypt_password) throws Exception {
         String key = "Noximillienlhorloger";
         SecretKey secretKey = deriveKey(key);

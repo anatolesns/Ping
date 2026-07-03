@@ -12,6 +12,10 @@ import java.util.Set;
 @ApplicationScoped
 public class AuthService {
 
+    /**
+     * Vérifie qu'un login respecte le format attendu (prénom.nom ou prénom_nom),
+     * avec un unique séparateur qui ne peut pas être en première ou dernière position.
+     */
     public boolean isValidLogin(String login) {
         if (login == null || login.isBlank()) {
             return false;
@@ -35,6 +39,10 @@ public class AuthService {
         return (d == 1 && u == 0) || (u == 1 && d == 0);
     }
 
+    /**
+     * Construit un nom d'affichage lisible à partir d'un login, en séparant
+     * les parties (par "." ou "_") et en mettant une majuscule à chacune.
+     */
     public String generateDisplayName(String login) {
         String separator;
         if (login.contains(".")) {
@@ -57,6 +65,10 @@ public class AuthService {
         return aux.toString();
     }
 
+    /**
+     * Génère un token JWT signé pour l'utilisateur, en y associant ses rôles
+     * (admin, manager ou utilisateur simple) et une durée de validité de 30 jours.
+     */
     public String generateToken(UserModel user) {
         Set<String> roles = new HashSet<>();
         String role = user.getRole();

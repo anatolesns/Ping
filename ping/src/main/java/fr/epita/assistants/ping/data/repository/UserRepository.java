@@ -15,16 +15,25 @@ public class UserRepository {
     @Inject
     EntityManager entityManager;
 
+    /**
+     * Récupère la liste de tous les utilisateurs.
+     */
     public List<UserModel> findAll() {
         return entityManager
                 .createQuery("SELECT u FROM UserModel u", UserModel.class)
                 .getResultList();
     }
 
+    /**
+     * Recherche un utilisateur par son identifiant.
+     */
     public UserModel findById(UUID id) {
         return entityManager.find(UserModel.class, id);
     }
 
+    /**
+     * Recherche un utilisateur par son login, lève une exception si aucun résultat.
+     */
     public UserModel findByLogin(String login) throws NoResultException {
         return entityManager.createQuery(
                 "SELECT u FROM UserModel u WHERE u.login = :login", UserModel.class)
@@ -32,6 +41,9 @@ public class UserRepository {
                 .getSingleResult();
     }
 
+    /**
+     * Vérifie si un login est déjà utilisé par un utilisateur existant.
+     */
     public boolean loginExists(String login) {
         long count = entityManager.createQuery(
                 "SELECT COUNT(u) FROM UserModel u WHERE u.login = :login", Long.class)
@@ -40,10 +52,16 @@ public class UserRepository {
         return count != 0;
     }
 
+    /**
+     * Persiste un nouvel utilisateur en base.
+     */
     public void save(UserModel user) {
         entityManager.persist(user);
     }
 
+    /**
+     * Supprime un utilisateur, en le rattachant au contexte de persistance si besoin.
+     */
     public void delete(UserModel user) {
     UserModel managed;
     

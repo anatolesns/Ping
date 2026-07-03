@@ -14,8 +14,15 @@ public class CreneauResponse {
     public UUID prisParId;
     public String prisParLogin;
 
+    /**
+     * Constructeur vide requis pour la (dé)sérialisation JSON.
+     */
     public CreneauResponse() {}
 
+    /**
+     * Construit la réponse à partir d'un créneau persisté, en incluant les
+     * informations sur l'utilisateur l'ayant pris s'il existe.
+     */
     public CreneauResponse(CreneauModel creneau) {
         this.id = creneau.getId();
         this.jour = creneau.getJour();

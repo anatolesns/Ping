@@ -19,15 +19,24 @@ public enum ErrorsCode implements IHttpError {
 
     private final HttpError error;
 
+    /**
+     * Associe à ce code d'erreur le statut HTTP et le message correspondants.
+     */
     ErrorsCode(Status status, String message) {
         error = new HttpError(status, message);
     }
 
+    /**
+     * Fournit l'exception HTTP correspondant à ce code d'erreur.
+     */
     @Override
     public RuntimeException get(Object... args) {
         return error.get(args);
     }
 
+    /**
+     * Lève directement l'exception HTTP correspondant à ce code d'erreur.
+     */
     @Override
     public void throwException(Object... args) {
         throw error.get(args);
